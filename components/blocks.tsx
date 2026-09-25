@@ -173,6 +173,29 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
                 </figcaption>
               </figure>
             );
+          case "pair":
+            return (
+              <figure key={i}>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {b.items.map((item) => (
+                    <div key={item.src}>
+                      <div className="overflow-hidden rounded-sm border border-line bg-black">
+                        <Image
+                          src={item.src}
+                          alt={item.alt}
+                          width={item.width}
+                          height={item.height}
+                          unoptimized
+                          className="h-auto w-full"
+                        />
+                      </div>
+                      <p className="mt-1.5 font-mono text-xs text-muted">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <figcaption className="mt-2 text-sm text-muted">{b.caption}</figcaption>
+              </figure>
+            );
           case "gridworld":
             return <GridWorld key={i} />;
           case "code":

@@ -13,6 +13,11 @@ export type Block =
       width: number;
       height: number;
     }
+  | {
+      type: "pair";
+      items: { src: string; alt: string; label: string; width: number; height: number }[];
+      caption: string;
+    }
   | { type: "gridworld" }
   | { type: "code"; id: string; caption?: string }
   | { type: "quote"; text: string };
@@ -264,7 +269,7 @@ export const projects: Project[] = [
       { value: "0.56%", label: "steps with 2+ wheels off the road" },
     ],
     intro:
-      "The agent only gets a 96×96 image: no speed, no map, and a new random track every episode. Most of what I learned came from things going wrong.",
+      "CarRacing gives the agent a 96×96 colour image and nothing else: no speed, no track map. The track is random every episode. I spent a week and a half on it, and most of what I learned came from things going wrong.",
     sections: [
       {
         heading: "Setup",
@@ -272,43 +277,131 @@ export const projects: Project[] = [
           {
             type: "list",
             items: [
-              "PPO with a CNN policy, 16 environments in parallel, and the last 4 frames stacked so it can see speed.",
-              "On my RTX 4060 one learning update went from 212 ms to 23 ms. Training overall only got about 2.5× faster, because the game itself runs on the CPU.",
-              "At the end of every run I keep the best of three: the old saved model, the best evaluated one and the final one. In several runs the final one was worse.",
+              "PPO with a CNN policy, 16 environments in parallel through SubprocVecEnv, and the last 4 frames stacked so the agent can see speed and direction.",
+              "My first 20k-step test took 24 minutes. With the default batch size of 64, PPO ran 5,120 tiny updates per chunk of data. Raising it to 512 cut that to 640.",
+              "Switched PyTorch to the CUDA build for my RTX 4060. One learning update went from 212 ms to 23 ms, but overall training only got about 2.5× faster, because the game itself still runs on the CPU.",
+              "An interrupted run lost about 164k steps of progress, and the next run overwrote its checkpoints. So I added resume logic that detects an interrupted run with a marker file and restarts from the newest checkpoint.",
+              "An end-of-run comparison between the previously saved model, the best evaluated model and the final model, keeping the winner. It mattered: in several runs the final model was clearly worse than one saved partway through.",
             ],
           },
         ],
       },
       {
-        heading: "The car never braked",
+        heading: "Stuck: the car wouldn't brake",
         blocks: [
           {
             type: "p",
-            text: "At 753k steps it drove well until a hairpin. Its average brake output was −0.77, which clips to zero: braking at random early on had cost reward, so it learned never to brake. gSDE exploration didn't fix it: the brake still read 0.000 before every crash, and the real steering noise measured 0.874 on an axis from −1 to +1. Plain Gaussian noise, where the setting is the actual noise, trained properly.",
+            text: "At 753k steps the car drove the road reasonably well but lost it at every hairpin: full speed into the turn, a slide, then stuck on the grass. I checked the policy's outputs instead of just watching. Its average brake output was −0.77, which clips to zero, and only 4% of its actions braked harder than 0.3.",
+          },
+          {
+            type: "pair",
+            items: [
+              {
+                src: "/media/hairpin-before.webp",
+                alt: "The red car arrives at a bend at speed, slides off the track and spins on the grass, leaving skid marks.",
+                label: "753,664 steps: slides off",
+                width: 420,
+                height: 245,
+              },
+              {
+                src: "/media/hairpin-after.webp",
+                alt: "The red car takes the same bend and stays on the grey track.",
+                label: "final model, a week later: stays on",
+                width: 420,
+                height: 245,
+              },
+            ],
+            caption: "The same bend on the same track (seed 0), recorded for this page. On the way in, the old model's brake never went above 0.23.",
+          },
+          {
+            type: "p",
+            text: "My explanation: braking at random moments early in training cost reward, so it learned to avoid braking altogether. More training then shrinks the exploration it would need to discover when braking helps. It had fallen into a local trap.",
           },
         ],
       },
       {
-        heading: "The two wrappers that mattered",
+        heading: "Trying gSDE, and why it didn't help",
         blocks: [
+          {
+            type: "p",
+            text: "I started a separate run with gSDE exploration, keeping the original as a baseline. The first thing I measured was the stuck states: the policy was asking for brake values up to +3.75 and steering up to ±17. Stable-Baselines3 only clips those, so the car sat at full lock and full brake with no way out. Adding `squash_output=True` and an early cut-off for stuck episodes fixed that, and it never got stuck again across 5 test tracks.",
+          },
+          {
+            type: "p",
+            text: "Evaluation then hung forever. `make_vec_env` had put my cut-off wrapper outside `Monitor`, so `Monitor` never saw the episode end and `evaluate_policy` waited for an episode count that never came. Building the environment myself with the wrapper on the inside fixed it.",
+          },
+          {
+            type: "p",
+            text: "The gSDE model trained to 4M steps and still couldn't take a hairpin. So I wrote `log_run.py` to record speed, steering, gas and brake for every frame of a track, and looked only at the run-up to each place it stopped collecting tiles:",
+          },
+          {
+            type: "figure",
+            src: "/figures/car_brake_log.png",
+            alt: "Two stacked line charts over about 180 frames. Speed falls from about 83 to 74. Below, steering slams between −1 and +1 while the brake line stays flat at zero the whole time.",
+            caption: "From my drive log for track seed 1. The brake is 0.000 on every frame, while steering bangs between its limits. It was the same on every seed I checked.",
+            width: 1260,
+            height: 720,
+          },
+          {
+            type: "p",
+            text: "That ruled out the control rate as the problem, which was my other suspect. It simply wasn't braking.",
+          },
+        ],
+      },
+      {
+        heading: "Frame skip, two collapses, and what gSDE was really doing",
+        blocks: [
+          {
+            type: "p",
+            text: "Next I added frame skip, which repeats each action for 4 frames and shortens how many correct decisions a corner needs. The first frame-skip run scored 289.5 at 65k steps, then fell to about 15 and stayed there. Lowering the epochs and adding `target_kl` helped the second run reach 257.9, and then it fell the same way.",
+          },
+          {
+            type: "p",
+            text: "In both collapses the spread of scores across the 5 evaluation tracks shrank to almost nothing: the policy was doing the same thing no matter what the track looked like. Since then I watch the spread as well as the mean. It caught both collapses earlier than the mean did.",
+          },
+          {
+            type: "p",
+            text: "Evaluating the 65k model two ways showed the cause. Its mean action scored 293.9 across 5 seeds, but its sampled actions scored −88.5, and PPO only ever trains on the sampled ones. So I measured the noise gSDE was really adding. Under gSDE the noise is the CNN's latent features multiplied by a random matrix, so with `log_std_init` at −2, which should mean small noise, the real steering noise was about 0.87 on an axis that only runs from −1 to +1.",
+          },
+          {
+            type: "p",
+            text: "I switched to plain Gaussian noise, where the setting is the actual noise. Frame skip already did the job I'd added gSDE for, so keeping both had been the mistake. But at −2 the noise was now too small: measured across a whole lap, the steering never left −0.07 to +0.07. It drove straight at low gas, and 229k steps had taught it almost nothing. A fresh run at −1 finally learned, scoring 348 by 131k steps and 520 by 196k.",
+          },
+        ],
+      },
+      {
+        heading: "The wrappers that did the work",
+        blocks: [
+          {
+            type: "p",
+            text: "I read `car_dynamics.py` to understand grip and braking, and found that CarRacing doesn't penalise driving on grass at all. Running wide and rejoining cost the agent almost nothing.",
+          },
           {
             type: "code",
             id: "off-track-penalty",
-            caption: "CarRacing doesn't penalise grass at all. This costs 1.2 per frame with 2 or more wheels off the road. Time off the road fell from 30.5% to 7.8%.",
+            caption: "My off-track penalty: 1.2 per frame with 2 or more wheels touching no road tile. Time off the road fell from 30.5% to 7.8%. The first version compared a generator to 0, which is always False, and penalised nothing. Wrapping it in sum() fixed it.",
+          },
+          {
+            type: "p",
+            text: "The car also wobbled: its steering reversed direction on about 16% of steps. My first fix, blending each command with the previous one, made it worse. The agent learned to push harder against the lag, so the wobble got slower and bigger. Smoothing limits how fast steering can change, but gives the agent no reason to want smooth steering. Only the reward can do that:",
           },
           {
             type: "code",
             id: "steering-penalty",
-            caption: "Charges the squared change in steering between decisions, so big swings cost far more than small corrections. Smoothing the actions hadn't stopped the wobble. Putting smoothness in the reward did.",
+            caption: "The steering penalty: the squared change in steering between decisions, so a swing of 1.5 costs 9 times as much as a swing of 0.5. My first version squared the steering itself, which would have penalised every corner.",
+          },
+          {
+            type: "p",
+            text: "Before picking a strength I measured what the current model's steering would cost. The multiplier I'd picked by feel would have cost about 1.2 points an episode, 25 times too small to notice against scores around 500.",
           },
         ],
       },
       {
-        heading: "Staged training",
+        heading: "Staged training, and the car that parked",
         blocks: [
           {
             type: "p",
-            text: "With every penalty on from step 0, the car parked at the start line: standing still was cheaper than driving badly. Adding one wrapper at a time worked.",
+            text: "Turning every penalty on from step 0 produced a car that parked at the start line and held the brake, scoring about −4 for 393,216 steps. Driving badly cost 4.8 per step off the road, while standing still cost 0.1 per frame and ended the episode after 25 steps. Doing nothing was the best policy it could find. Adding one wrapper at a time, each stage starting from the last stage's winner, worked:",
           },
           {
             type: "table",
@@ -321,29 +414,36 @@ export const projects: Project[] = [
           },
           {
             type: "p",
-            text: "A control run without the steering penalty scored the same (838.5), so that gain came from the extra training. The penalty's real effect showed on 30 tracks: 0.93% of steps off the road against 6.41%, and no spin-outs.",
+            text: "Then a control run: stage 2 trained for the same extra 500,000 steps without the steering penalty. It scored 838.5 against stage 3's 835.7, so the 80-point gain came from the extra training and the decaying learning rate, not the penalty. Without that run I would have credited the penalty with it. Its real effect showed up on 30 tracks: 0.93% ± 0.24 of steps off the road against 6.41% ± 1.23, and no spin-outs.",
           },
         ],
       },
       {
-        heading: "How strong a penalty?",
+        heading: "How strong should the penalty be?",
         blocks: [
           {
+            type: "figure",
+            src: "/figures/car_sweep.png",
+            alt: "Horizontal bar chart of mean reward on 30 tracks. No penalty 775.7, ×2 812.1, ×4 810.7, ×8 from the stage 2 model 632.8, ×8 from the ×4 model 849.0.",
+            caption: "Every arm trained the same number of steps. At ×16 (not shown) the model collapsed to about −150.",
+            width: 1260,
+            height: 540,
+          },
+          {
             type: "table",
-            head: ["Steering penalty", "Mean reward (30 tracks)", "Off the road", "Laps of 30"],
+            head: ["Penalty", "Off the road", "Laps of 30"],
             rows: [
-              ["none", "775.7 ± 27.3", "6.41%", "12"],
-              ["×2", "812.1 ± 15.7", "0.93%", "13"],
-              ["×4", "810.7 ± 23.9", "2.83%", "16"],
-              ["×8, from the stage 2 model", "632.8 ± 35.7", "13.79%", "7"],
-              ["×8, from the ×4 model", "849.0 ± 10.2", "0.56%", "18"],
-              ["×16, from the ×8 model", "collapsed to about −150", "off the track", "0"],
+              ["none", "6.41%", "12"],
+              ["×2", "0.93%", "13"],
+              ["×4", "2.83%", "16"],
+              ["×8, from the stage 2 model", "13.79%", "7"],
+              ["×8, from the ×4 model", "0.56%", "18"],
+              ["×16, from the ×8 model", "off the track", "0"],
             ],
-            caption: "Same number of training steps for every row. ± is the standard error.",
           },
           {
             type: "p",
-            text: "The same ×8 penalty gave 633 on a model still learning to drive and 849 on one that already drove well. At ×16 it stopped steering entirely, since a wheel held still costs nothing.",
+            text: "The same ×8 penalty gave 633 on a model still learning to drive and 849 on one that already drove well, so when a penalty arrives matters more than how strong it is. At ×16 the agent stopped steering altogether: the penalty charges for changes in steering, so holding the wheel at −1 and driving off the track costs nothing. That's the opposite failure to the parked car, and both come from a penalty being cheaper to satisfy than the task.",
           },
         ],
       },
@@ -353,9 +453,10 @@ export const projects: Project[] = [
           {
             type: "list",
             items: [
-              "Size a penalty by measuring what the current behaviour would cost. My first guess was about 25 times too small.",
+              "Look at what the policy actually outputs, not just the score. The brake values and the steering range told me more than any reward curve.",
+              "Size a penalty by measuring what the current behaviour would cost.",
               "Change one thing per run, and run a control.",
-              "Five-episode evaluations aren't a result. Scores swung by 300 points on the same model, so comparisons here use 10 or 30 fixed tracks.",
+              "Five-episode evaluations aren't a result. Scores swung by 300 points between evaluations of the same model, so my comparisons use 10 or 30 fixed tracks with standard errors.",
             ],
           },
         ],
@@ -376,53 +477,91 @@ export const projects: Project[] = [
       { value: "8.21", label: "PPO's mean episode length on 5×5, where the minimum is 8" },
     ],
     intro:
-      "My first environment written from scratch: a grid, a goal and some traps. I wrote reset(), step() and render() myself, trained PPO and DQN on it, and fixed whatever broke.",
+      "After LunarLander and FrozenLake I wanted to write an environment myself instead of using one. I wrote __init__, reset(), step() and render(), tested every move by hand, then trained PPO and DQN on it and fixed whatever broke.",
     sections: [
       {
-        heading: "5×5, one trap",
+        heading: "The 5×5 version",
         blocks: [
           { type: "gridworld" },
           {
-            type: "list",
-            items: [
-              "PPO: episode length fell from 32.8 to 8.21 (the shortest path is 8), and it reached the goal 100 times out of 100.",
-              "DQN diverged. Bumping a wall cost 0 while a move cost −1, so it sat bumping walls for free. Charging −1 for a bump fixed it.",
-            ],
+            type: "p",
+            text: "Even the basics took some working out. My first check for \"did the agent bump a wall\", `row != 0 or row != size-1`, is true everywhere, so it never caught anything. Comparing the position before and after the move was the right test.",
+          },
+          {
+            type: "p",
+            text: "PPO converged cleanly: mean episode length fell from 32.8 to 8.21 (the shortest path is 8) and mean reward rose from −31.8 to 2.8 (the maximum is 3). It reached the goal in 100 of 100 evaluation episodes and from all 23 valid starting cells.",
+          },
+          {
+            type: "p",
+            text: "DQN diverged. Episodes hit the 50-step limit with a reward of about −3, which didn't add up until I worked out why: bumping a wall cost 0 while a real move cost −1. An agent stuck against a wall paid almost nothing, 46 bumps at 0 plus 3 real moves at −1. Making a wall bump cost −1 fixed it.",
           },
         ],
       },
       {
-        heading: "8×8, five traps",
+        heading: "Scaling to 8×8 with 5 traps",
         blocks: [
           {
             type: "p",
-            text: "With a flat −1 per step, walking into a trap after 4 steps (reward ≈ −13) beat finding the 14-step path (≈ −3). Rewarding progress toward the goal made the long path findable.",
+            text: "With a flat −1 per step, PPO learned to walk into a trap after about 4 steps (reward ≈ −13) instead of finding the real 14-step path (reward ≈ −3). Dying fast was the best thing it had discovered. The reward had to make the long good path findable, not just eventually better, so I switched to rewarding progress toward the goal:",
+          },
+          {
+            type: "figure",
+            src: "/figures/grid_distance.png",
+            alt: "An 8 by 8 grid where each cell shows its distance to the goal in the bottom-right corner, from 14 down to 1. An arrow from 9 to 8 is labelled +1, and an arrow from 4 to 5 is labelled −1.",
+            caption: "Each cell's distance to the goal. A move earns old distance minus new distance: +1 closer, −1 farther.",
+            width: 780,
+            height: 780,
           },
           {
             type: "code",
             id: "gridworld-reward",
             caption: "The reward in step(). This is the current version of the file, where a wall bump costs −3.",
           },
-        ],
-      },
-      {
-        heading: "Train where you test",
-        blocks: [
           {
             type: "p",
-            text: "Both models still failed from some cells near the traps, because they had only ever started at (0, 0). Drawing random starts from a list of valid cells fixed it: both reached the goal from all 58.",
+            text: "DQN then did something I didn't expect. It found the optimal path about 5k steps into a 20k run, then drifted away from it before training finished. Unlike my Q-table, a neural network can get worse after finding the answer, probably because its replay buffer was still full of earlier bad experience. Training for 50k steps fixed it.",
           },
         ],
       },
       {
-        heading: "Mistakes I made",
+        heading: "Why some starts failed",
+        blocks: [
+          {
+            type: "p",
+            text: "I swept every valid starting cell. PPO failed in two clusters near the traps, and DQN failed at only two cells next to one trap. The first sweep's results looked wrong, and they were: an (x, y) versus (row, col) mix-up meant it wasn't excluding the traps at all, and some failing cells weren't the ones I thought I was testing.",
+          },
+          {
+            type: "p",
+            text: "After fixing that, the two algorithms still failed in almost entirely different places. Both had trained from the same fixed start, so a region neither had seen would have failed for both. Each algorithm's own exploration was shaping its blind spots. Rendering the DQN failures step by step showed it walking straight into the trap.",
+          },
+        ],
+      },
+      {
+        heading: "The fix: train from where you'll be tested",
+        blocks: [
+          {
+            type: "p",
+            text: "Both models had only ever started from (0, 0). I rewrote reset() to draw a random start from a precomputed list of valid cells. My first two attempts drew separate random indices for the row and the column, which combines two unrelated valid cells instead of picking one. One index into the list guarantees a valid cell. A smoke test of 2,000 resets hit all 58 valid cells and never an invalid one.",
+          },
+          {
+            type: "p",
+            text: "After retraining, both PPO and DQN reached the goal from every valid starting cell. It was a training-distribution problem, not a reward or coordinate bug, and not just \"needs more training\".",
+          },
+          {
+            type: "p",
+            text: "I also added EvalCallback with best-checkpoint saving, plus a step that scores the old saved model against the new best one and only overwrites if the new one wins, after reruns had overwritten good models more than once. Reading its source showed it always names the file best_model.zip, so a PPO run and a DQN run sharing a folder would silently overwrite each other.",
+          },
+        ],
+      },
+      {
+        heading: "What else tripped me up",
         blocks: [
           {
             type: "list",
             items: [
-              "No step limit, so a bad policy could loop forever. FrozenLake's built-in wrapper had hidden that from me.",
-              "An (x, y) versus (row, col) mix-up meant my sweep wasn't excluding the traps at all.",
-              "`EvalCallback` always names its file best_model.zip, so PPO and DQN runs sharing a folder would overwrite each other.",
+              "The environment had no step limit, so a bad policy could loop forever. FrozenLake's built-in wrapper had been hiding that requirement from me.",
+              "`self.np_random` is an object with methods, not a function. I tried calling `self.np_random(7)` before finding `.integers()`.",
+              "Random starts change what \"optimal reward\" means. With one fixed start it was a single number, 23. With 58 starts it ranges from 10 to 23, so the training curve needed a different baseline.",
             ],
           },
         ],
@@ -452,25 +591,51 @@ export const projects: Project[] = [
       { value: "~78%", label: "best success rate on the slippery map" },
     ],
     intro:
-      "PPO had worked on LunarLander, but I couldn't say how. A 16-cell lake is small enough to watch a reward change the value of the steps before it, the same idea PPO and DQN use with a neural network instead of a table.",
+      "PPO had worked on LunarLander, but I couldn't say how. Q-learning on a 16-cell lake is small enough to watch a reward at one step change the value of the steps before it, which is the same idea PPO and DQN use with a neural network instead of a table.",
     sections: [
       {
-        heading: "The update rule",
+        heading: "What I wrote",
         blocks: [
+          {
+            type: "list",
+            items: [
+              "A 16 × 4 Q-table, one value per state and action, starting at zero.",
+              "Epsilon-greedy action selection: explore at random with probability epsilon, otherwise take the best known action. Epsilon starts at 1.0, since trusting an all-zero table is pointless, and decays by 0.999 per episode to 0.01.",
+              "The TD update, below.",
+              "A separate greedy evaluation loop over 100 episodes.",
+            ],
+          },
           {
             type: "code",
             id: "q-update",
-            caption: "Look one step ahead, then nudge the old estimate toward the reward plus the discounted best next value. The TODO comments are from the skeleton I rewrote it from.",
+            caption: "Look one step ahead, then nudge the old estimate toward the reward plus the discounted best next value.",
           },
           {
             type: "p",
-            text: "Around it: a 16 × 4 table of zeros, and epsilon-greedy exploration that starts at 1.0 and decays by 0.999 per episode to 0.01.",
+            text: "To check I really understood it, I rewrote the whole thing from a skeleton afterwards (that's where the TODO comments come from). It came out with about 3 small syntax errors and 2 look-backs at my first version.",
           },
         ],
       },
       {
-        heading: "Results",
+        heading: "Bugs that taught me something",
         blocks: [
+          {
+            type: "list",
+            items: [
+              "`np.zeros(16, 4)` reads the 4 as a dtype and gives a 1D array. The shape has to be a tuple, `np.zeros((16, 4))`.",
+              "`np.argmax` gives the index of the best action, `np.max` its value. The TD target needs the value.",
+              "Forgetting `state = next_state` in the evaluation loop kept looking up the starting state's Q-values on every step.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Results, and a ceiling I didn't expect",
+        blocks: [
+          {
+            type: "p",
+            text: "On the non-slippery map, 5,000 episodes was enough: the Q-values settled near 1.0 close to the goal and fell off with distance, and the greedy policy succeeded 100 times out of 100. Then I turned the ice slippery:",
+          },
           {
             type: "table",
             head: ["Training episodes (slippery)", "Success rate"],
@@ -482,20 +647,15 @@ export const projects: Project[] = [
           },
           {
             type: "p",
-            text: "The slippery ice only moves you where you meant a third of the time, so no policy wins every time. Around 78% is close to that ceiling.",
+            text: "I couldn't work out why 100k wouldn't go above 78%, or why 200k did worse than 20k. The answer to the first: slippery ice only moves you the way you meant a third of the time, so no policy can win every time, and around 78% is close to the ceiling. The dip at 200k is probably noise in a 100-episode evaluation rather than a worse policy.",
           },
-        ],
-      },
-      {
-        heading: "Bugs that taught me something",
-        blocks: [
           {
-            type: "list",
-            items: [
-              "`np.zeros(16, 4)` reads the 4 as a dtype. The shape has to be a tuple.",
-              "`np.argmax` gives the best action, `np.max` its value. The update needs the value.",
-              "Forgetting `state = next_state` in evaluation kept looking up the start state every step.",
-            ],
+            type: "figure",
+            src: "/figures/frozen_policy.png",
+            alt: "The 4 by 4 lake with an arrow in each safe cell showing the chosen move and a number showing its value, rising from about 0.5 at the start to 0.90 next to the goal. Holes are dark and the goal is gold.",
+            caption: "What my saved Q-table learned: the move it picks on each tile, and that move's value. Some arrows look odd, like pointing left at the start. On slippery ice you slide sideways two times in three, and pushing left into the wall there means the only slip that can happen is down, never into a hole.",
+            width: 780,
+            height: 780,
           },
         ],
       },
@@ -519,39 +679,85 @@ export const projects: Project[] = [
       height: 320,
     },
     intro:
-      "The first thing I trained. I got a lander that touched down between the flags, then spent the next day working out why it behaved the way it did.",
+      "The first thing I trained. I started from a script I didn't understand yet, got a lander that touched down between the flags, and spent the next day working out why it behaved the way it did.",
     sections: [
       {
-        heading: "Changing one number",
+        heading: "Day 1: change the one thing I understood",
         blocks: [
+          {
+            type: "p",
+            text: "I couldn't read the code yet, but I could change how long it trained. So I retrained at different step counts and watched each one land:",
+          },
           {
             type: "table",
             head: ["Training steps", "What the lander did"],
             rows: [
               ["100k", "Never tried to land. Flew upward every time."],
-              ["200k", "Descended slowly, but steered mostly after touching down."],
-              ["300k", "Landed between the flags about 40% of the time."],
-              ["400k", "Mostly landed on a flag, not the centre, on two seeds."],
+              ["200k", "Descended slowly toward the flags, but did most of its steering after touching down."],
+              ["300k", "Landed between the flags about 40% of the time, on or near a flag otherwise."],
+              ["400k", "Mostly landed on a flag instead of the centre."],
               ["500k", "Landed between the flags most of the time."],
             ],
           },
           {
+            type: "figure",
+            src: "/figures/lunar_timelapse.png",
+            alt: "A time-lapse of the trained lander's descent: ten faint copies of the lander stacked from the top of the screen down to the pad between the two yellow flags, the last one brightest.",
+            caption: "Where the training ended up: the trained model's whole descent as a time-lapse, one exposure every 30 steps.",
+            width: 600,
+            height: 400,
+          },
+          {
             type: "p",
-            text: "Crashing is penalised heavily, so the 100k agent found it safer not to try landing at all.",
+            text: "My guess for the 100k agent: crashing is penalised heavily, so an agent that can't land yet does better by not trying. Landing only pays off once it has learned how.",
           },
         ],
       },
       {
-        heading: "Reading the reward",
+        heading: "Day 2: read the source, then test",
         blocks: [
+          {
+            type: "p",
+            text: "To explain why the 400k agent aimed for a flag, I stopped guessing from the outside and read LunarLander's reward function on GitHub. Then I retrained at 400k with a different seed (100) to check the first run wasn't a fluke. It landed near the flags again, so the behaviour was real.",
+          },
           {
             type: "code",
             id: "lunar-shaping",
-            caption: "From Gymnasium's source. Each step is rewarded for improving on the last: closer to the pad, slower, more upright, legs down.",
+            caption: "From Gymnasium's LunarLander source, the part I spent the day on.",
+          },
+          {
+            type: "figure",
+            src: "/figures/lunar_shaping.png",
+            alt: "Line chart of the four shaping terms over 243 steps of one landing. Distance to pad rises from −141 toward zero, speed dips to about −70 then climbs back, tilt stays near zero, and legs touching jumps to +20 at step 212.",
+            caption: "The same four terms, measured through the landing at the top of this page. The reward each step is how much their total went up.",
+            width: 1260,
+            height: 630,
+          },
+          {
+            type: "list",
+            items: [
+              "Why shape at all: if the only reward were a perfect landing, every other attempt would score the same and the agent would need a lucky landing to learn anything.",
+              "Every term is graded, not pass or fail. Slightly closer to the pad, slightly slower or slightly more upright is always slightly better, so every step tells the agent \"warmer\" or \"colder\".",
+              "The reward is `shaping - prev_shaping`: it pays for improving on the last step, not for being in a good spot. Where `prev_shaping` started was one of my questions that day. It's reset at the start of every episode in `reset()`.",
+              "Badly designed shaping leads to reward hacking, where the agent chases points instead of the task. I ran into exactly that later, in GridWorld and CarRacing.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Python I picked up on the way",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "A class is a template, a bit like a Flutter widget. `self` is what lets values set in `__init__` survive for `step()` and `reset()` to use.",
+              "LunarLander is a subclass of `gym.Env`, so it has to fill in `reset()`, `step()` and `render()`. Every environment does.",
+              "`spaces.Discrete(4)` means pick one of 4 actions: do nothing, or fire one of the 3 engines. `spaces.Box(shape=(8,))` means 8 continuous numbers, like position, velocity and angle.",
+            ],
           },
           {
             type: "p",
-            text: "Because every step says \"warmer\" or \"colder\", the agent never has to stumble onto a perfect landing by luck. Reading this is also how I learned how a Gymnasium environment is built, which I needed for GridWorld.",
+            text: "That was enough to write my own environment soon after. First, though, I wanted to see a learning update happen with my own eyes instead of inside `.learn()`, which is where FrozenLake came from.",
           },
         ],
       },
