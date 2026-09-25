@@ -75,6 +75,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Curious about a project, or want to work on something together?
               Message me.
             </h2>
+            <a
+              href={`mailto:${site.email}`}
+              className="mt-6 inline-block font-mono text-base break-all underline decoration-line underline-offset-4 hover:decoration-accent sm:text-lg"
+            >
+              {site.email}
+            </a>
             <ul className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
               {site.links.map((l) => (
                 <li key={l.label}>

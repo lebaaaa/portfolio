@@ -1,5 +1,6 @@
 export const site = {
   name: "Abel Goh",
+  email: "abelgoh.business@gmail.com",
   description:
     "Electronics & Computer Engineering student at Nanyang Polytechnic, Singapore. Reinforcement learning, robotics and embedded systems projects.",
   links: [
