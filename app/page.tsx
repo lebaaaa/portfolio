@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LidarReplay } from "@/components/lidar-replay";
 import { ProjectList } from "@/components/project-list";
 import { earlierProjects, getProject, rlProjects } from "@/lib/projects";
 
@@ -14,19 +15,28 @@ export default function Home() {
 
   return (
     <>
-      <section className="pt-14 pb-16 sm:pt-24 sm:pb-20">
-        <p className="font-mono text-[13px] text-muted">
-          Singapore · currently in Nara, Japan
-        </p>
-        <h1 className="mt-5 max-w-4xl font-serif text-[2.1rem] leading-[1.12] tracking-tight sm:text-5xl sm:leading-[1.08]">
-          I&rsquo;m Abel, an Electronics &amp; Computer Engineering student at
-          Nanyang Polytechnic. Right now I&rsquo;m interning at NIT Nara
-          College, using reinforcement learning to teach a simulated race car and a LiDAR robot to drive themselves.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-          These are the projects, with the numbers and the parts that
-          didn&rsquo;t work the first time.
-        </p>
+      <section className="grid items-center gap-12 pt-12 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
+        <div>
+          <p className="dot font-mono text-[13px] text-muted">
+            Singapore · currently in Nara, Japan
+          </p>
+          <h1 className="mt-5 font-serif text-[2.1rem] leading-[1.12] tracking-tight sm:text-5xl sm:leading-[1.08] lg:text-[2.9rem]">
+            I&rsquo;m Abel, an Electronics &amp; Computer Engineering student at
+            Nanyang Polytechnic. Right now I&rsquo;m interning at NIT Nara
+            College, using reinforcement learning to teach{" "}
+            <span className="mark">a simulated race car and a LiDAR robot</span>{" "}
+            to drive themselves.
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+            These are the projects, with the numbers and the parts that
+            didn&rsquo;t work the first time.
+          </p>
+          <p className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-line px-3.5 py-1.5 font-mono text-xs text-muted">
+            <span className="h-2 w-2 rounded-full bg-gold" />
+            Next: testing my navigation model on a real TurtleBot3
+          </p>
+        </div>
+        <LidarReplay />
       </section>
 
       <section aria-label="Clips of trained agents">
@@ -52,7 +62,7 @@ export default function Home() {
                     style={m.pixelated ? { imageRendering: "pixelated" } : undefined}
                   />
                 </div>
-                <p className="mt-2 font-mono text-xs text-muted group-hover:text-fg">
+                <p className="mt-2 font-mono text-xs text-muted group-hover:text-accent">
                   {c.label} →
                 </p>
               </Link>
@@ -65,7 +75,7 @@ export default function Home() {
       </section>
 
       <section className="mt-24 sm:mt-32">
-        <p className="font-mono text-[13px] text-muted">Latest</p>
+        <p className="dot font-mono text-[13px] text-muted">Latest</p>
         <div className="mt-4 grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
           <div>
             <h2 className="font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
@@ -83,7 +93,9 @@ export default function Home() {
                   key={s.label}
                   className="grid grid-cols-[10.5rem_1fr] items-baseline gap-4 py-3"
                 >
-                  <dt className="font-mono text-base whitespace-nowrap tabular-nums sm:text-lg">{s.value}</dt>
+                  <dt className="font-mono text-base font-medium whitespace-nowrap text-accent tabular-nums sm:text-lg">
+                    {s.value}
+                  </dt>
                   <dd className="text-sm text-muted">{s.label}</dd>
                 </div>
               ))}
@@ -119,7 +131,7 @@ export default function Home() {
           <h2 className="font-serif text-3xl tracking-tight">
             Reinforcement learning
           </h2>
-          <p className="font-mono text-xs text-muted">
+          <p className="dot dot-gold font-mono text-xs text-muted">
             Sep 2026 · self-study during my internship
           </p>
         </div>

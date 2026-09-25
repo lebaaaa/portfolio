@@ -47,15 +47,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             className="font-serif text-xl font-semibold tracking-tight no-underline"
           >
             Abel Goh
+            <span lang="ja" className="ml-2 font-sans text-sm font-medium text-gold">
+              アベル
+            </span>
           </Link>
           <nav className="flex gap-5 font-mono text-[13px] text-muted sm:gap-7">
-            <Link href="/#work" className="hover:text-fg">
+            <Link href="/#work" className="hover:text-accent">
               Work
             </Link>
-            <Link href="/about" className="hover:text-fg">
+            <Link href="/about" className="hover:text-accent">
               About
             </Link>
-            <Link href="#contact" className="hover:text-fg">
+            <Link href="#contact" className="hover:text-accent">
               Contact
             </Link>
           </nav>
@@ -67,42 +70,44 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
         <footer
           id="contact"
-          className="mx-auto mt-28 w-full max-w-6xl scroll-mt-8 px-4 pb-10 sm:px-8"
+          className="mt-28 scroll-mt-8 bg-band text-band-fg"
         >
-          <div className="border-t border-line pt-10">
-            <p className="font-mono text-[13px] text-muted">Contact</p>
-            <h2 className="mt-3 max-w-xl font-serif text-3xl leading-tight sm:text-4xl">
+          <div className="mx-auto w-full max-w-6xl px-4 pt-14 pb-10 sm:px-8 sm:pt-20">
+            <p className="dot dot-gold font-mono text-[13px] text-band-muted">
+              Contact
+            </p>
+            <h2 className="mt-4 max-w-xl font-serif text-3xl leading-tight sm:text-4xl">
               Curious about a project, or want to work on something together?
               Message me.
             </h2>
             <a
               href={`mailto:${site.email}`}
-              className="mt-6 inline-block font-mono text-base break-all underline decoration-line underline-offset-4 hover:decoration-accent sm:text-lg"
+              className="mt-6 inline-block font-mono text-base break-all text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold sm:text-lg"
             >
               {site.email}
             </a>
-            <ul className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="mt-12 grid gap-x-8 gap-y-6 border-t border-band-line pt-8 sm:grid-cols-2 lg:grid-cols-4">
               {site.links.map((l) => (
                 <li key={l.label}>
                   <a
                     href={l.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-baseline gap-1.5 font-medium underline decoration-line hover:decoration-accent"
+                    className="group inline-flex items-baseline gap-1.5 font-medium underline decoration-band-line underline-offset-4 hover:decoration-gold"
                   >
                     {l.label}
                     <span
                       aria-hidden
-                      className="text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      className="text-band-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-gold"
                     >
                       ↗
                     </span>
                   </a>
-                  <p className="mt-1 text-sm text-muted">{l.note}</p>
+                  <p className="mt-1 text-sm text-band-muted">{l.note}</p>
                 </li>
               ))}
             </ul>
-            <p className="mt-16 font-mono text-xs text-muted">
+            <p className="mt-16 font-mono text-xs text-band-muted">
               © 2026 Abel Goh · Singapore
             </p>
           </div>

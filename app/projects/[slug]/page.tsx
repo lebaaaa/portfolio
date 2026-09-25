@@ -43,7 +43,7 @@ export default async function ProjectPage({
       </Link>
 
       <header className="mt-8 max-w-4xl">
-        <p className="font-mono text-[13px] text-muted">
+        <p className="dot font-mono text-[13px] text-muted">
           {[project.when, project.role].filter(Boolean).join(" · ")}
         </p>
         <h1 className="mt-3 font-serif text-4xl leading-[1.08] tracking-tight sm:text-[3.4rem]">
@@ -76,7 +76,9 @@ export default async function ProjectPage({
                   key={s.label}
                   className="grid grid-cols-[10.5rem_1fr] items-baseline gap-4 py-4 sm:grid-cols-[11.5rem_1fr]"
                 >
-                  <dt className="font-mono text-base whitespace-nowrap tabular-nums sm:text-xl">{s.value}</dt>
+                  <dt className="font-mono text-base font-medium whitespace-nowrap text-accent tabular-nums sm:text-xl">
+                    {s.value}
+                  </dt>
                   <dd className="text-sm leading-snug text-muted">{s.label}</dd>
                 </div>
               ))}
@@ -102,7 +104,7 @@ export default async function ProjectPage({
       </div>
 
       <nav className="mt-24 border-t border-line pt-6">
-        <p className="font-mono text-[13px] text-muted">Next project</p>
+        <p className="dot dot-gold font-mono text-[13px] text-muted">Next project</p>
         <Link
           href={`/projects/${next.slug}`}
           className="mt-2 inline-block font-serif text-2xl decoration-accent decoration-1 underline-offset-4 hover:underline sm:text-3xl"

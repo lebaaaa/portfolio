@@ -1,23 +1,36 @@
 @import "tailwindcss";
 
+/* Palette taken from my intro slides: navy, coral, gold. */
 :root {
-  --bg: #f7f6f2;
-  --panel: #fdfcf9;
-  --fg: #1b1d22;
-  --muted: #5f625f;
-  --line: #dcd9d0;
-  --accent: #b83a26;
+  --bg: #fbfaf6;
+  --panel: #ffffff;
+  --fg: #16213e;
+  --muted: #5a6178;
+  --line: #e4e1d8;
+  --accent: #e5484d;
+  --gold: #f2b544;
+  --band: #16213e;
+  --band-fg: #f4f1ea;
+  --band-muted: #aab1c7;
+  --band-line: #2b3760;
+  --grid: rgb(22 33 62 / 0.035);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #131416;
-    --panel: #1b1c1f;
-    --fg: #e8e6e1;
-    --muted: #9c9b96;
-    --line: #2e2f33;
-    --accent: #ee7b5f;
+    --bg: #0e1528;
+    --panel: #141d36;
+    --fg: #eceef5;
+    --muted: #98a1ba;
+    --line: #243056;
+    --accent: #ff6b6f;
+    --gold: #f2b544;
+    --band: #19244a;
+    --band-fg: #f4f1ea;
+    --band-muted: #aab1c7;
+    --band-line: #2f3c6b;
+    --grid: rgb(170 185 230 / 0.045);
     color-scheme: dark;
   }
 }
@@ -29,6 +42,11 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-gold: var(--gold);
+  --color-band: var(--band);
+  --color-band-fg: var(--band-fg);
+  --color-band-muted: var(--band-muted);
+  --color-band-line: var(--band-line);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
   --font-serif: var(--font-serif);
@@ -39,7 +57,12 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  /* Faint graph paper, like the notebook the logs started in. */
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
   color: var(--fg);
   font-family: var(--font-plex-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -60,6 +83,45 @@ a {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+/* Gold marker under a phrase, like a highlighter on paper. */
+.mark {
+  background-image: linear-gradient(
+    transparent 62%,
+    color-mix(in srgb, var(--gold) 55%, transparent) 62%,
+    color-mix(in srgb, var(--gold) 55%, transparent) 92%,
+    transparent 92%
+  );
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* On navy a wide gold band turns muddy, so use a thin full-strength stroke. */
+  .mark {
+    background-image: linear-gradient(
+      transparent 86%,
+      var(--gold) 86%,
+      var(--gold) 93%,
+      transparent 93%
+    );
+  }
+}
+
+.dot::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.55rem;
+  border-radius: 999px;
+  background: var(--accent);
+  vertical-align: 0.05em;
+}
+
+.dot-gold::before {
+  background: var(--gold);
 }
 
 .prose-body p + p {

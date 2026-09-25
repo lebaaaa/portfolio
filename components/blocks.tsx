@@ -117,7 +117,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
                     <thead>
-                      <tr className="border-b border-fg/70">
+                      <tr className="border-b-2 border-fg">
                         {b.head.map((h, j) => (
                           <th
                             key={j}

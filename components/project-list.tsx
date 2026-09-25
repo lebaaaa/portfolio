@@ -14,9 +14,9 @@ export function ProjectList({
         <li key={p.slug} className="border-b border-line">
           <Link
             href={`/projects/${p.slug}`}
-            className="group grid grid-cols-[2.25rem_1fr] gap-x-3 py-6 sm:grid-cols-[3rem_1fr_9rem] sm:gap-x-6"
+            className="group -mx-3 grid grid-cols-[2.25rem_1fr] gap-x-3 rounded-sm px-3 py-6 transition-colors hover:bg-panel sm:grid-cols-[3rem_1fr_9rem] sm:gap-x-6"
           >
-            <span className="pt-1 font-mono text-xs text-muted tabular-nums">
+            <span className="pt-1 font-mono text-xs font-medium text-accent tabular-nums">
               {String(start + i).padStart(2, "0")}
             </span>
             <span>
