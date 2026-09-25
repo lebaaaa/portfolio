@@ -14,6 +14,19 @@
   --band-muted: #aab1c7;
   --band-line: #2b3760;
   color-scheme: light;
+
+  /* Code colours, always on the navy band. */
+  --shiki-foreground: #ece8df;
+  --shiki-background: transparent;
+  --shiki-token-keyword: #ff8a8d;
+  --shiki-token-string: #f2b544;
+  --shiki-token-string-expression: #f2b544;
+  --shiki-token-comment: #8891ab;
+  --shiki-token-constant: #ffd48a;
+  --shiki-token-function: #a9c4ff;
+  --shiki-token-parameter: #ece8df;
+  --shiki-token-punctuation: #aab1c7;
+  --shiki-token-link: #a9c4ff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -115,6 +128,30 @@ a {
 
 .dot-gold::before {
   background: var(--gold);
+}
+
+.code-snippet pre {
+  background: transparent !important;
+  margin: 0;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  width: max-content;
+  min-width: 100%;
+}
+
+.code-snippet .line {
+  display: inline-block;
+  padding-right: 1.25rem;
+}
+
+.code-snippet .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2.25rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: var(--band-muted);
+  opacity: 0.55;
 }
 
 .prose-body p + p {

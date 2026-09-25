@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CodeSnippet } from "@/components/code-snippet";
 import type { Block, Media } from "@/lib/projects";
 
 // Renders `code` spans inside otherwise plain text.
@@ -174,6 +175,8 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             );
           case "gridworld":
             return <GridWorld key={i} />;
+          case "code":
+            return <CodeSnippet key={i} id={b.id} caption={b.caption} />;
         }
       })}
     </div>
