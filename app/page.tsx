@@ -148,7 +148,7 @@ export default function Home() {
       <section className="mt-20">
         <h2 className="font-serif text-3xl tracking-tight">Earlier projects</h2>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Embedded systems, desktop and web projects.
+          Mobile, embedded systems, desktop and web projects.
         </p>
         <div className="mt-8">
           <ProjectList projects={earlierProjects} start={rlProjects.length + 1} />

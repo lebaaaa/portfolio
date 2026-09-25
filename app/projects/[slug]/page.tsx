@@ -56,6 +56,21 @@ export default async function ProjectPage({
           <span className="font-mono text-xs">Built with</span>{" "}
           {project.stack.join(" · ")}
         </p>
+        {project.links && (
+          <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            {project.links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline decoration-line underline-offset-4 hover:decoration-accent"
+              >
+                {l.label} ↗
+              </a>
+            ))}
+          </p>
+        )}
       </header>
 
       {(project.media || project.stats) && (

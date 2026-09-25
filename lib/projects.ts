@@ -36,6 +36,7 @@ export type Project = {
   when?: string;
   role: string;
   stack: string[];
+  links?: { label: string; href: string }[];
   media?: Media;
   stats?: { value: string; label: string }[];
   intro: string;
@@ -578,6 +579,58 @@ export const projects: Project[] = [
           {
             type: "p",
             text: "The same reading taught me Python classes, `self`, and how every Gymnasium environment is a subclass of `gym.Env` that fills in `reset()`, `step()` and `render()`. That's what made writing my own environment for GridWorld possible a few days later.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "healthcare-app",
+    title: "Healthcare mobile app",
+    short:
+      "A two-person Flutter app for finding clinics anywhere in Singapore, booking appointments, looking up food nutrition and reading health news.",
+    group: "earlier",
+    when: "Jul–Aug 2026",
+    role: "Team of 2",
+    stack: ["Flutter", "Dart", "Firebase Auth", "Cloud Firestore", "Geoapify Places API", "USDA FoodData Central API"],
+    links: [{ label: "View the code on GitHub", href: "https://github.com/lebaaaa/healthcare" }],
+    intro:
+      "A mobile app with five tabs: home, clinics, food, news and a user profile. You sign in with Firebase, pick an area of Singapore to see nearby clinics, book a slot, and manage your appointments from the home screen. I built it with one teammate over about a month, splitting the app by screen.",
+    sections: [
+      {
+        heading: "What I built",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "Clinics screen: a dropdown of all 55 planning areas in Singapore, each mapped to its Geoapify place ID. Picking an area fetches up to 20 clinics and shows each one's address, phone number and opening hours, with a Book Appointment button.",
+              "Appointment booking: a bottom sheet with a date picker limited to today through one year ahead, and a set of 6 time slots. Confirm Booking stays disabled until both are chosen, then the appointment is saved to Cloud Firestore against the signed-in user.",
+              "Food search: searches the USDA FoodData Central database and lists up to 20 matches. The detail screen pulls calories, protein, fat and carbs, plus calcium, iron, sodium and vitamins C and D, out of each food's nutrient list.",
+              "The data layer behind those screens: the clinic, appointment, food and user models, the API calls, the Firestore calls for saving and loading appointments, and the bottom navigation bar.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "What my teammate built",
+        blocks: [
+          {
+            type: "p",
+            text: "The home screen, which streams your appointments live from Firestore and lets you tap one to change it or hold to delete it; the health news screen; the sign-in and profile screens; and the teal colour scheme the whole app shares. We split the work by screen and shared one repository, 21 commits from me and 19 from them.",
+          },
+        ],
+      },
+      {
+        heading: "What I learned",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "Handling slow network calls in a UI with `FutureBuilder`: showing a spinner while waiting, an error if the request fails, and the list once data arrives.",
+              "Turning another service's JSON into my own models, with a fallback like \"Contact not found\" for every field a clinic might be missing, so one incomplete listing doesn't crash the screen.",
+              "Storing per-user data in Firestore by tagging each appointment with the user's ID and querying on it.",
+              "Working in one repository with someone else at the same time, including sorting out our merge commits.",
+            ],
           },
         ],
       },
