@@ -592,7 +592,7 @@ export const projects: Project[] = [
     group: "earlier",
     when: "Jul–Aug 2026",
     role: "Team of 2",
-    stack: ["Flutter", "Dart", "Firebase Auth", "Cloud Firestore", "Geoapify Places API", "USDA FoodData Central API"],
+    stack: ["Flutter", "Dart", "Android Studio", "Firebase Auth", "Cloud Firestore", "Geoapify Places API", "USDA FoodData Central API"],
     links: [{ label: "View the code on GitHub", href: "https://github.com/lebaaaa/healthcare" }],
     intro:
       "A mobile app with five tabs: home, clinics, food, news and a user profile. You sign in with Firebase, pick an area of Singapore to see nearby clinics, book a slot, and manage your appointments from the home screen. I built it with one teammate over about a month, splitting the app by screen.",
