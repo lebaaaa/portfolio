@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -14,6 +15,38 @@ const facts = [
   ["Languages", "English, Chinese, Japanese (learning, 勉強中)"],
   ["Code", "Python, C, C#, HTML, CSS, JavaScript, Linux and the command line"],
   ["Lately", "PyTorch, Stable-Baselines3, Gymnasium, ROS 2, Gazebo"],
+];
+
+// Rows are sized so both photos in a row end up the same height.
+const PHOTO_ROWS = [
+  [
+    {
+      src: "/photos/carpark-night.jpg",
+      width: 1800,
+      height: 967,
+      alt: "A white SUV with its tail lights on, parked under a concrete canopy at night, next to a yellow barrier and traffic cones.",
+    },
+    {
+      src: "/photos/window-dusk.jpg",
+      width: 1800,
+      height: 1350,
+      alt: "A dark bedroom looking out through a barred window at apartment blocks against an orange dusk sky.",
+    },
+  ],
+  [
+    {
+      src: "/photos/expressway.jpg",
+      width: 1800,
+      height: 781,
+      alt: "An expressway in daylight, lined with tall green trees, with trucks, a car and a motorcyclist in the lanes.",
+    },
+    {
+      src: "/photos/bench-sea.jpg",
+      width: 1800,
+      height: 1350,
+      alt: "A person seen from behind on a bench between two palm trees, looking out over the sea at floating buildings on a hazy day.",
+    },
+  ],
 ];
 
 // Pins left standing in a Greek Church split, rows from the back.
@@ -108,7 +141,16 @@ export default function AboutPage() {
             </p>
             <GreekChurch />
           </div>
-          <p>I also do photography.</p>
+          <p>
+            I also take photos. A few of them are{" "}
+            <a
+              href="#photography"
+              className="underline decoration-line underline-offset-4 hover:decoration-accent"
+            >
+              at the bottom of this page
+            </a>
+            .
+          </p>
 
           <h2 className="pt-6 font-serif text-2xl tracking-tight">
             Looking ahead
@@ -138,6 +180,42 @@ export default function AboutPage() {
           </Link>
         </aside>
       </div>
+
+      <section id="photography" className="mt-24 scroll-mt-8">
+        <p className="dot dot-gold font-mono text-[13px] text-muted">
+          Photography
+        </p>
+        <h2 className="mt-3 font-serif text-3xl tracking-tight">
+          Things I stopped to look at
+        </h2>
+        <div className="mt-8 space-y-3 sm:space-y-4">
+          {PHOTO_ROWS.map((row, r) => (
+            <div
+              key={r}
+              className="grid gap-3 sm:grid-cols-(--cols) sm:gap-4"
+              style={
+                {
+                  "--cols": row
+                    .map((p) => `${(p.width / p.height).toFixed(3)}fr`)
+                    .join(" "),
+                } as React.CSSProperties
+              }
+            >
+              {row.map((p) => (
+                <Image
+                  key={p.src}
+                  src={p.src}
+                  alt={p.alt}
+                  width={p.width}
+                  height={p.height}
+                  sizes="(min-width: 640px) 60vw, 100vw"
+                  className="h-auto w-full rounded-sm"
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
