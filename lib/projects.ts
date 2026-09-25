@@ -61,7 +61,7 @@ export const projects: Project[] = [
     ],
     stats: [
       { value: "59 / 60", label: "Gazebo episodes with the same outcome as my simulator" },
-      { value: "98.0%", label: "goals reached by the lab-robot model (LDS-02 LiDAR, odometry drift)" },
+      { value: "98.0%", label: "goals reached by the real-robot model (LDS-02 LiDAR, odometry drift)" },
       { value: "53.7 → 87.3%", label: "wall arm on hard starts, after hard-start training" },
     ],
     intro:
@@ -191,11 +191,11 @@ export const projects: Project[] = [
         ],
       },
       {
-        heading: "A model for the lab robot",
+        heading: "A model for a real robot",
         blocks: [
           {
             type: "p",
-            text: "The lab's Burger carries the newer LDS-02 LiDAR, not the LDS-01 that Gazebo simulates. I added it to the simulator from the e-Manual and ROBOTIS's driver, and fine-tuned the best wall-arm model on it for 400k steps with hard starts and odometry drift. On 200 layouts it reached the goal 98.0% of the time, up from 95.5%, with half the crashes. In plain Gazebo it reached the goal on all 30 layouts.",
+            text: "The Burger I'm hoping to test on carries the newer LDS-02 LiDAR, not the LDS-01 that Gazebo simulates. I added it to the simulator from the e-Manual and ROBOTIS's driver, and fine-tuned the best wall-arm model on it for 400k steps with hard starts and odometry drift. On 200 layouts it reached the goal 98.0% of the time, up from 95.5%, with half the crashes. In plain Gazebo it reached the goal on all 30 layouts.",
           },
           {
             type: "table",

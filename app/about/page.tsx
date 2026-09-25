@@ -4,13 +4,13 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Abel Goh: Electronics & Computer Engineering student at Nanyang Polytechnic, Singapore, interning at NIT Nara College.",
+    "Abel Goh: Electronics & Computer Engineering student at Nanyang Polytechnic, Singapore.",
 };
 
 const facts = [
   ["Studying", "Electronics & Computer Engineering, Nanyang Polytechnic, Singapore"],
-  ["Now", "Intern at NIT Nara College, Japan"],
-  ["Next", "Aiming for Electrical & Electronic Engineering at NTU"],
+  ["Next", "Internship at NIT Nara College, Japan"],
+  ["After poly", "Aiming for Electrical & Electronic Engineering at NTU"],
   ["Languages", "English, Chinese, Japanese (learning, 勉強中)"],
   ["Code", "Python, C, C#, HTML, CSS, JavaScript, Linux and the command line"],
   ["Lately", "PyTorch, Stable-Baselines3, Gymnasium, ROS 2, Gazebo"],
@@ -84,7 +84,7 @@ export default function AboutPage() {
           </h2>
           <p>
             I break it into manageable parts and try to understand it before
-            jumping to a solution. During the internship that turned into a
+            jumping to a solution. In my reinforcement learning projects that turned into a
             habit of running a control: when a change seemed to help, I trained
             the same model without it to see whether the change or just the
             extra training was responsible. More than once it was the training.
@@ -108,6 +108,7 @@ export default function AboutPage() {
             </p>
             <GreekChurch />
           </div>
+          <p>I also do photography.</p>
 
           <h2 className="pt-6 font-serif text-2xl tracking-tight">
             Looking ahead

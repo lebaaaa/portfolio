@@ -18,12 +18,12 @@ export default function Home() {
       <section className="grid items-center gap-12 pt-12 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
         <div>
           <p className="dot font-mono text-[13px] text-muted">
-            Singapore · currently in Nara, Japan
+            Singapore · starting an internship at NIT Nara College, Japan
           </p>
           <h1 className="mt-5 font-serif text-[2.1rem] leading-[1.12] tracking-tight sm:text-5xl sm:leading-[1.08] lg:text-[2.9rem]">
             I&rsquo;m Abel, an Electronics &amp; Computer Engineering student at
-            Nanyang Polytechnic. Right now I&rsquo;m interning at NIT Nara
-            College, using reinforcement learning to teach{" "}
+            Nanyang Polytechnic in Singapore. In my own time I&rsquo;ve been
+            teaching myself reinforcement learning by training{" "}
             <span className="mark">a simulated race car and a LiDAR robot</span>{" "}
             to drive themselves.
           </h1>
@@ -132,7 +132,7 @@ export default function Home() {
             Reinforcement learning
           </h2>
           <p className="dot dot-gold font-mono text-xs text-muted">
-            Sep 2026 · self-study during my internship
+            Sep 2026 · personal projects
           </p>
         </div>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
@@ -163,11 +163,11 @@ export default function Home() {
           <p>
             I learn by building. I break a problem into parts, try to
             understand it before jumping to a fix, and treat mistakes as the
-            useful part. My daily logs from the internship are mostly lists
+            useful part. My daily logs from these projects are mostly lists
             of what confused me and what I figured out.
           </p>
           <p className="mt-4">
-            Outside of engineering I bowl competitively and play badminton.
+            Outside of engineering I bowl competitively, play badminton and take photos.
           </p>
           <Link
             href="/about"
