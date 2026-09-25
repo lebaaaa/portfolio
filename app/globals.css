@@ -13,7 +13,6 @@
   --band-fg: #f4f1ea;
   --band-muted: #aab1c7;
   --band-line: #2b3760;
-  --grid: rgb(22 33 62 / 0.035);
   color-scheme: light;
 }
 
@@ -30,7 +29,6 @@
     --band-fg: #f4f1ea;
     --band-muted: #aab1c7;
     --band-line: #2f3c6b;
-    --grid: rgb(170 185 230 / 0.045);
     color-scheme: dark;
   }
 }
@@ -58,11 +56,6 @@ html {
 
 body {
   background-color: var(--bg);
-  /* Faint graph paper, like the notebook the logs started in. */
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 32px 32px;
   color: var(--fg);
   font-family: var(--font-plex-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
