@@ -229,12 +229,8 @@ export const projects: Project[] = [
         ],
       },
       {
-        heading: "How I worked, and what's next",
+        heading: "Limits and what's next",
         blocks: [
-          {
-            type: "p",
-            text: "I wrote the first version of BurgerEnv myself: the spec sheet, reset(), the ray casting, step() and the reward. For the Gazebo matching and ROS 2 side I used Claude to write most of the code, while I decided what the robot observes, what gets rewarded, how episodes end and which experiments and controls to run.",
-          },
           {
             type: "p",
             text: "Limits: 3 seeds per arm, only rectangular obstacles, and no real robot yet. Next is measuring real wheel slip on a Burger with the same command sequence I used in Gazebo, then testing the LDS-02 model on a small course.",
