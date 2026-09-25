@@ -35,7 +35,7 @@ const PHOTO_ROWS = [
   ],
   [
     {
-      src: "/photos/expressway.jpg",
+      src: "/photos/expressway-2.jpg",
       width: 1800,
       height: 781,
       alt: "An expressway in daylight, lined with tall green trees, with trucks, a car and a motorcyclist in the lanes.",
