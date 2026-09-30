@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Blocks, Clip } from "@/components/blocks";
+import { PhoneShowcase } from "@/components/phone-showcase";
 import { getProject, projects } from "@/lib/projects";
 
 export const dynamicParams = false;
@@ -72,6 +73,10 @@ export default async function ProjectPage({
           </p>
         )}
       </header>
+
+      {project.showcase && (
+        <PhoneShowcase shots={project.showcase} caption={project.showcaseCaption} />
+      )}
 
       {(project.media || project.stats) && (
         <div className="mt-12 grid items-start gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-14">

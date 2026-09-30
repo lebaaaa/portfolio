@@ -43,6 +43,16 @@ export type Project = {
   role: string;
   stack: string[];
   links?: { label: string; href: string }[];
+  showcase?: {
+    kind: "video" | "image";
+    src: string;
+    poster?: string;
+    alt: string;
+    label: string;
+    width: number;
+    height: number;
+  }[];
+  showcaseCaption?: string;
   media?: Media;
   stats?: { value: string; label: string }[];
   intro: string;
@@ -883,6 +893,51 @@ export const projects: Project[] = [
     role: "Team of 2",
     stack: ["Flutter", "Dart", "Android Studio", "Firebase Auth", "Cloud Firestore", "Geoapify Places API", "USDA FoodData Central API"],
     links: [{ label: "View the code on GitHub", href: "https://github.com/lebaaaa/healthcare" }],
+    showcase: [
+      {
+        kind: "video",
+        src: "/media/healthcare-booking.mp4",
+        poster: "/media/healthcare-booking.jpg",
+        alt: "Screen recording: the home screen shows no appointments; on Clinics the area is changed to Clementi, MyHealth Medical Centre is booked for 14 Oct 2026 at 4:00 PM, and the appointment then appears on the home screen.",
+        label: "booking, start to finish",
+        width: 480,
+        height: 1014,
+      },
+      {
+        kind: "image",
+        src: "/phones/clinics.png",
+        alt: "Clinics screen with Clementi selected, showing clinic cards with address, phone number, opening hours and a Book Appointment button.",
+        label: "clinics by area",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/food-search.png",
+        alt: "Food Search screen with salmon typed in and a list of matching foods.",
+        label: "food search",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/nutrition.png",
+        alt: "Nutrition Detail screen for salmon: calories, protein, fat and carbs, then calcium, iron, sodium and vitamins C and D.",
+        label: "nutrition detail",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/home.png",
+        alt: "Home screen welcoming the user, with one upcoming appointment at MyHealth Medical Centre on 14 Oct 2026 at 4:00 PM.",
+        label: "home, after booking",
+        width: 720,
+        height: 1520,
+      },
+    ],
+    showcaseCaption:
+      "Recorded on the Android emulator from Android Studio. The recording is real time: picking Clementi, booking a 4:00 PM slot, and the appointment appearing on the home screen, which my teammate built.",
     intro:
       "A mobile app with five tabs: home, clinics, food, news and a user profile. You sign in with Firebase, pick an area of Singapore to see nearby clinics, book a slot, and manage your appointments from the home screen. I built it with one teammate over about a month, splitting the app by screen.",
     sections: [
