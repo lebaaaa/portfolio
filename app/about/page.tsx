@@ -157,9 +157,10 @@ export default function AboutPage() {
           </h2>
           <p>
             I want to take on more complex projects, work with other people, and
-            apply what I learn to real problems. Next up is getting my
-            navigation policy onto a real TurtleBot3 and seeing how much of the
-            simulator result survives contact with an actual floor.
+            apply what I learn to real problems. My navigation policy has now
+            driven a real robot once, a FastBot in a remote lab, and reached 3 of
+            5 goals. Next is a longer test with a proper success rate, ideally
+            on a real TurtleBot3.
           </p>
         </div>
 

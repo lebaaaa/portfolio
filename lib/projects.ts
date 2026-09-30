@@ -54,9 +54,9 @@ export const projects: Project[] = [
     slug: "turtlebot3-lidar-robot",
     title: "Crash or carry on: training a LiDAR robot",
     short:
-      "My own 2D simulator for a TurtleBot3 Burger, two reward designs compared over 3 seeds each, then checked in Gazebo through ROS 2.",
+      "My own 2D simulator for a TurtleBot3 Burger and two reward designs, checked in Gazebo through ROS 2, tested with people walking through the room, and finally run on a real robot.",
     group: "rl",
-    when: "22–25 Sep 2026",
+    when: "22–30 Sep 2026",
     role: "Solo",
     stack: [
       "Python",
@@ -68,8 +68,8 @@ export const projects: Project[] = [
     ],
     stats: [
       { value: "59 / 60", label: "Gazebo episodes with the same outcome as my simulator" },
-      { value: "98.0%", label: "goals reached by the real-robot model (LDS-02 LiDAR, odometry drift)" },
       { value: "53.7 → 87.3%", label: "wall arm on hard starts, after hard-start training" },
+      { value: "3 / 5", label: "goals reached on a real FastBot robot, driven remotely" },
     ],
     intro:
       "When a robot hits a wall during training, should the episode end with a penalty, or should the robot be penalised gradually for getting close and allowed to carry on? I compared the two on a simulated TurtleBot3 Burger that only has its LiDAR and the direction to a goal.",
@@ -198,11 +198,11 @@ export const projects: Project[] = [
         ],
       },
       {
-        heading: "A model for a real robot",
+        heading: "A model for the TurtleBot's LiDAR",
         blocks: [
           {
             type: "p",
-            text: "The Burger I'm hoping to test on carries the newer LDS-02 LiDAR, not the LDS-01 that Gazebo simulates. I added it to the simulator from the e-Manual and ROBOTIS's driver, and fine-tuned the best wall-arm model on it for 400k steps with hard starts and odometry drift. On 200 layouts it reached the goal 98.0% of the time, up from 95.5%, with half the crashes. In plain Gazebo it reached the goal on all 30 layouts.",
+            text: "The real Burger uses the newer LDS-02 LiDAR, not the LDS-01 that Gazebo simulates. I added it to the simulator from the e-Manual and ROBOTIS's driver, and fine-tuned the best wall-arm model on it for 400k steps with hard starts and odometry drift. On 200 layouts it reached the goal 98.0% of the time, up from 95.5%, with half the crashes. In plain Gazebo it reached the goal on all 30 layouts.",
           },
           {
             type: "table",
@@ -218,6 +218,108 @@ export const projects: Project[] = [
           {
             type: "p",
             text: "Lowering wheel friction first looked like the model's weak spot. Before training against it I measured Gazebo directly with a fixed command sequence. At friction 0.6 the robot lost 80 to 95% of its turning and turned left when told to turn right, while the Burger only needs a friction of about 0.1 to accelerate at its limit. That's a Gazebo contact-model artefact, not real slip, so I dropped it from the tests. Measuring first stopped me training against a problem that doesn't exist.",
+          },
+        ],
+      },
+      {
+        heading: "Moving obstacles: does the answer hold with people around?",
+        blocks: [
+          {
+            type: "p",
+            text: "With no real robot available yet, I extended the experiment instead. Each room now gets 1 to 3 people as well as the usual 2 to 5 boxes. They're modelled as leg-sized cylinders (0.07 m radius) walking at 0.35 m/s between random points, and they don't steer around the robot. The LiDAR sees them like walls, so the graded arm's closeness penalty applies to them too, and driving into a person costs 30 in both arms. The robot now sees 4 stacked scans instead of 2, so it can tell which way someone is moving. Both arms trained from scratch for 600k steps, 3 seeds each.",
+          },
+          {
+            type: "p",
+            text: "Before training I wrote down a prediction: the wall arm would do better, and the graded arm would slow down around people and lose episodes to timeouts. The first run said the opposite, graded 94.0% against wall 86.0%. But the graded robot was driving into people 4.41 times per episode, and about 280 times in its worst ones. That looked wrong, so I traced it episode by episode.",
+          },
+          {
+            type: "figure",
+            src: "/figures/people_bug_trace.png",
+            alt: "Bar chart of how often the graded robot drove into a person per episode: 4.41 in run 1, 3.17 in run 2, 0.17 in run 3.",
+            caption: "The average hid that almost all the contacts came from a handful of stuck episodes.",
+            width: 1260,
+            height: 570,
+          },
+          {
+            type: "list",
+            items: [
+              "Bug 1: when the robot bumped someone, the rest of that simulation step was skipped, including the people's movement. The bumped person never got to step back, so the robot bumped the same frozen person every step until time ran out.",
+              "Bug 2: after that fix, a few episodes still had over 200 contacts. A bumped person whose step back was blocked by a wall, a box or another person just waited, and two people about to collide both froze. I made them behave more like real people: sidestep at an angle if the way back is blocked, and pick a new route instead of freezing.",
+              "Both arms had to be retrained after the second fix. It changed how people move in both training worlds, and the comparison is only fair if both arms trained in the same world.",
+            ],
+          },
+          {
+            type: "p",
+            text: "On the fixed simulator the graded arm reached the goal 96.8% of the time with no crashes, against 85.7% for the wall arm. That comparison isn't fair either: the wall arm's episodes end at its first contact, so it can never show more than one. I re-scored the wall models with episodes carrying on after contact, testing only, with the models unchanged. I predicted the wall arm would do worse once allowed to carry on. It didn't:",
+          },
+          {
+            type: "figure",
+            src: "/figures/people_results.png",
+            alt: "Grouped bar chart. Under training rules, wall 85.7% and graded 96.8% reached the goal. Under the same rules on 1,000 layouts, wall 95.7% and graded 96.8%. A person was hit in 10.8% of wall episodes and 11.0% of graded ones.",
+            caption: "Wall arm in blue, graded arm in orange, 3 seeds each. Under the same rules the seeds overlap.",
+            width: 1260,
+            height: 600,
+          },
+          {
+            type: "p",
+            text: "Both robots also kept about the same distance from people, around 0.51 m at the closest, so the graded robot wasn't shying away from them. And each arm still had one episode in 3,000 with over 200 contacts, so a rare stuck case remains in both.",
+          },
+          {
+            type: "quote",
+            text: "Both models are about as good at avoiding people and reaching the goal. Personally I'd pick the graded arm, because it doesn't need the robot to crash, and damage itself or its surroundings, in order to learn.",
+          },
+        ],
+      },
+      {
+        heading: "On a real robot: the FastBot",
+        blocks: [
+          {
+            type: "p",
+            text: "I never got access to a TurtleBot3, so I moved to The Construct's remote lab, where you book a slot and drive a real FastBot robot over the internet.",
+          },
+          {
+            type: "list",
+            items: [
+              "In a 25-minute slot I measured what I needed: its LiDAR gives 449 readings about 9.5 times a second, and it tracked gentle commands well (0.15 m/s, 1 rad/s) but not fast ones. So I limited the policy to the gentle range.",
+              "I added the FastBot to my simulator as a second robot and fine-tuned the Burger model on it. I predicted it would reach the goal more often than the Burger model's 98.0%. It didn't: 98.0% on normal starts, and 91.0% on hard starts against the Burger's 94.5%.",
+              "The FastBot's model file suggested its LiDAR might be mounted backwards, which would make it see obstacles on the wrong side. I checked on the robot before trusting it: turning left shifted the scan the way my simulator assumes, and driving 10 cm forward shortened the front reading from 1.60 m to 1.51 m.",
+            ],
+          },
+          {
+            type: "table",
+            head: ["Run", "Goal", "What happened"],
+            rows: [
+              ["1", "1.0 m straight ahead", "reached"],
+              ["2", "0.9 m behind and to the right", "reached in 7.3 s, close to the fastest possible"],
+              ["3", "1.3 m ahead and to the left", "stopped 0.12 to 0.19 m from an obstacle until the 40 s limit"],
+              ["4", "0.8 m behind, starting where run 3 stopped", "ended 0.3 m from the goal when the 30 s limit ran out"],
+              ["5", "0.6 m to the left", "reached in 5.9 s"],
+            ],
+            caption: "3 of 5 goals reached, in a model city rather than a room like the ones it trained in.",
+          },
+          {
+            type: "pair",
+            items: [
+              {
+                src: "/media/fastbot-run5.gif",
+                alt: "Top-down view built from the robot's LiDAR: grey dots show walls around it, and the robot drives a short curve into the green goal circle.",
+                label: "run 5: reached in 5.9 s",
+                width: 500,
+                height: 500,
+              },
+              {
+                src: "/media/fastbot-run4.gif",
+                alt: "Top-down view built from the robot's LiDAR: the robot drives about half a metre and stops just outside the green goal circle.",
+                label: "run 4: 0.3 m short at the time limit",
+                width: 500,
+                height: 500,
+              },
+            ],
+            caption: "Recorded on the real robot and drawn from its own LiDAR scans and odometry: grey dots are what it saw, the blue line is where it drove.",
+          },
+          {
+            type: "p",
+            text: "As a first real-robot demonstration it was weak. The failed runs looked like the \"stuck in front of an obstacle\" failure I'd seen in simulation, the model city is nothing like my training rooms, and not all of the FastBot's specs were published, so my simulated version wasn't an exact match. Whether a real TurtleBot3 would do better stays a hypothesis until I can test on one.",
           },
         ],
       },
@@ -239,8 +341,16 @@ export const projects: Project[] = [
         heading: "Limits and what's next",
         blocks: [
           {
+            type: "list",
+            items: [
+              "3 seeds per arm. The original 200k-step models were undertrained; the best ones had 400k extra steps.",
+              "The real-robot test is 5 runs on a different robot, which is a demonstration, not a success rate. The TurtleBot3 itself was never tested on hardware.",
+              "Obstacles are all rectangles, and people are simple cylinders that don't react to the robot beyond stepping away.",
+            ],
+          },
+          {
             type: "p",
-            text: "Limits: 3 seeds per arm, only rectangular obstacles, and no real robot yet. Next is measuring real wheel slip on a Burger with the same command sequence I used in Gazebo, then testing the LDS-02 model on a small course.",
+            text: "Next: a longer real-robot test with a proper success rate and a camera recording, and measuring real wheel slip with the same command sequence I used in Gazebo.",
           },
         ],
       },

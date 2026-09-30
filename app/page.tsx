@@ -33,7 +33,7 @@ export default function Home() {
           </p>
           <p className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-line px-3.5 py-1.5 font-mono text-xs text-muted">
             <span className="h-2 w-2 rounded-full bg-gold" />
-            Next: testing my navigation model on a real TurtleBot3
+            Latest: my navigation model on a real robot, 3 of 5 goals reached
           </p>
         </div>
         <LidarReplay />
