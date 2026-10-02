@@ -18,12 +18,13 @@ export default function Home() {
       <section className="grid items-center gap-12 pt-12 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
         <div>
           <p className="dot font-mono text-[13px] text-muted">
-            Singapore · starting an internship at NIT Nara College, Japan
+            Nara, Japan · interning at NIT Nara College
           </p>
           <h1 className="mt-5 font-serif text-[2.1rem] leading-[1.12] tracking-tight sm:text-5xl sm:leading-[1.08] lg:text-[2.9rem]">
             I&rsquo;m Abel, an Electronics &amp; Computer Engineering student at
-            Nanyang Polytechnic in Singapore. In my own time I&rsquo;ve been
-            teaching myself reinforcement learning by training{" "}
+            Nanyang Polytechnic in Singapore, now interning at NIT Nara College
+            in Japan. Before I left, I taught myself reinforcement learning by
+            training{" "}
             <span className="mark">a simulated race car and a LiDAR robot</span>{" "}
             to drive themselves.
           </h1>

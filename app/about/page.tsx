@@ -5,12 +5,12 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Abel Goh: Electronics & Computer Engineering student at Nanyang Polytechnic, Singapore.",
+    "Abel Goh: Electronics & Computer Engineering student at Nanyang Polytechnic, Singapore, interning at NIT Nara College, Japan.",
 };
 
 const facts = [
   ["Studying", "Electronics & Computer Engineering, Nanyang Polytechnic, Singapore"],
-  ["Next", "Internship at NIT Nara College, Japan"],
+  ["Now", "Intern at NIT Nara College, Japan"],
   ["After poly", "Aiming for Electrical & Electronic Engineering at NTU"],
   ["Languages", "English, Chinese, Japanese (learning, 勉強中)"],
   ["Code", "Python, C, C#, HTML, CSS, JavaScript, Linux and the command line"],

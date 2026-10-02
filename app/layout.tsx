@@ -108,7 +108,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               ))}
             </ul>
             <p className="mt-16 font-mono text-xs text-band-muted">
-              © 2026 Abel Goh · Singapore
+              © 2026 Abel Goh · Singapore, currently in Nara
             </p>
           </div>
         </footer>
