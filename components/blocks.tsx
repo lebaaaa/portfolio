@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { CodeSnippet } from "@/components/code-snippet";
+import { ArchReveal } from "@/components/arch-reveal";
 import { LoopVideo } from "@/components/loop-video";
 import type { Block, Media } from "@/lib/projects";
 
@@ -170,6 +171,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
           case "figure":
             return (
               <figure key={i}>
+                <ArchReveal>
                 <div className="overflow-hidden rounded-2xl bg-[#fcfcfa] ring-1 ring-line ring-inset">
                   <Image
                     src={b.src}
@@ -180,6 +182,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
                     className={`h-auto ${b.width < 1000 ? "mx-auto w-full max-w-md" : "w-full"}`}
                   />
                 </div>
+                </ArchReveal>
                 <figcaption className="mt-2 text-sm text-muted">
                   {b.caption}
                 </figcaption>

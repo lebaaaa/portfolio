@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArchReveal } from "@/components/arch-reveal";
 import { LoopVideo } from "@/components/loop-video";
 import { Reveal } from "@/components/reveal";
 import { KeepHyphens } from "@/components/keep-hyphens";
@@ -14,8 +15,25 @@ type Tile = {
   tone: Tone;
   layout: "stack" | "row" | "tall";
   media:
-    | { kind: "video"; src: string; poster: string; w: number; h: number; fit: "cover" | "contain"; pixelated?: boolean; bg: string; label: string }
-    | { kind: "image"; src: string; w: number; h: number; bg: string; alt: string };
+    | {
+        kind: "video";
+        src: string;
+        poster: string;
+        w: number;
+        h: number;
+        fit: "cover" | "contain";
+        pixelated?: boolean;
+        bg: string;
+        label: string;
+      }
+    | {
+        kind: "image";
+        src: string;
+        w: number;
+        h: number;
+        bg: string;
+        alt: string;
+      };
   aspect?: string;
 };
 
@@ -35,7 +53,8 @@ const tiles: Tile[] = [
       h: 500,
       fit: "contain",
       bg: "#fcfcfb",
-      label: "The real FastBot robot, seen through its own LiDAR, driving into the goal circle.",
+      label:
+        "The real FastBot robot, seen through its own LiDAR, driving into the goal circle.",
     },
   },
   {
@@ -86,7 +105,8 @@ const tiles: Tile[] = [
       fit: "cover",
       pixelated: true,
       bg: "#dfe9f3",
-      label: "The elf crossing the frozen lake to the present, following my Q-table.",
+      label:
+        "The elf crossing the frozen lake to the present, following my Q-table.",
     },
   },
   {
@@ -119,34 +139,36 @@ function Media({ tile }: { tile: Tile }) {
       ? "aspect-square lg:aspect-auto lg:flex-1 lg:min-h-0"
       : tile.layout === "row"
         ? "aspect-square"
-        : tile.aspect ?? "aspect-video";
+        : (tile.aspect ?? "aspect-video");
   return (
-    <div
-      className={`relative overflow-hidden rounded-xl ${frame}`}
-      style={{ backgroundColor: m.bg }}
-    >
-      {m.kind === "video" ? (
-        <LoopVideo
-          src={m.src}
-          poster={m.poster}
-          width={m.w}
-          height={m.h}
-          label={m.label}
-          fit={m.fit}
-          pixelated={m.pixelated}
-          className="h-full w-full"
-        />
-      ) : (
-        <Image
-          src={m.src}
-          alt={m.alt}
-          width={m.w}
-          height={m.h}
-          sizes="(min-width: 1024px) 260px, 50vw"
-          className="h-full w-full object-cover"
-        />
-      )}
-    </div>
+    <ArchReveal radius={12} className={`relative ${frame}`}>
+      <div
+        className="relative h-full w-full overflow-hidden rounded-xl"
+        style={{ backgroundColor: m.bg }}
+      >
+        {m.kind === "video" ? (
+          <LoopVideo
+            src={m.src}
+            poster={m.poster}
+            width={m.w}
+            height={m.h}
+            label={m.label}
+            fit={m.fit}
+            pixelated={m.pixelated}
+            className="h-full w-full"
+          />
+        ) : (
+          <Image
+            src={m.src}
+            alt={m.alt}
+            width={m.w}
+            height={m.h}
+            sizes="(min-width: 1024px) 260px, 50vw"
+            className="h-full w-full object-cover"
+          />
+        )}
+      </div>
+    </ArchReveal>
   );
 }
 
@@ -160,13 +182,21 @@ export function WorkBento() {
           <Reveal key={tile.slug} delay={i * 0.06} className={tile.span}>
             <article
               className={`group relative flex h-full flex-col gap-4 rounded-2xl p-3 transition-transform duration-300 hover:-translate-y-1 ${t.box} ${
-                tile.layout === "row" ? "sm:grid sm:grid-cols-[minmax(0,0.7fr)_1fr] sm:items-center" : ""
+                tile.layout === "row"
+                  ? "sm:grid sm:grid-cols-[minmax(0,0.7fr)_1fr] sm:items-center"
+                  : ""
               }`}
             >
               <Media tile={tile} />
-              <div className={`flex flex-col px-2 pb-2 sm:px-3 ${tile.layout === "tall" ? "" : "flex-1"}`}>
-                <p className={`font-mono text-xs font-medium ${t.meta}`}>{p.when}</p>
-                <h3 className={`mt-2 font-display leading-tight font-bold tracking-tight ${tile.layout === "row" ? "text-2xl" : "text-2xl sm:text-[1.75rem]"}`}>
+              <div
+                className={`flex flex-col px-2 pb-2 sm:px-3 ${tile.layout === "tall" ? "" : "flex-1"}`}
+              >
+                <p className={`font-mono text-xs font-medium ${t.meta}`}>
+                  {p.when}
+                </p>
+                <h3
+                  className={`mt-2 font-display leading-tight font-bold tracking-tight ${tile.layout === "row" ? "text-2xl" : "text-2xl sm:text-[1.75rem]"}`}
+                >
                   <Link
                     href={`/projects/${p.slug}`}
                     className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none"
@@ -174,7 +204,9 @@ export function WorkBento() {
                     <KeepHyphens text={p.title} />
                   </Link>
                 </h3>
-                <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed opacity-90">{p.short}</p>
+                <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed opacity-90">
+                  {p.short}
+                </p>
                 <ArrowUpRight
                   size={22}
                   weight="bold"

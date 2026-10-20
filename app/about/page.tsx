@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { ArchReveal } from "@/components/arch-reveal";
+import { PillLink } from "@/components/pill-link";
 
 export const metadata: Metadata = {
   title: "About",
@@ -173,13 +173,9 @@ export default function AboutPage() {
               </div>
             ))}
           </dl>
-          <Link
-            href="/#work"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-on-color transition-transform hover:-translate-y-0.5"
-          >
+          <PillLink href="/#work" tone="dark" className="mt-5">
             Projects
-            <ArrowRight size={16} weight="bold" aria-hidden />
-          </Link>
+          </PillLink>
         </aside>
       </div>
 
@@ -201,8 +197,8 @@ export default function AboutPage() {
               }
             >
               {row.map((p) => (
+                <ArchReveal key={p.src}>
                 <Image
-                  key={p.src}
                   src={p.src}
                   alt={p.alt}
                   width={p.width}
@@ -210,6 +206,7 @@ export default function AboutPage() {
                   sizes="(min-width: 640px) 60vw, 100vw"
                   className="h-auto w-full rounded-2xl"
                 />
+                </ArchReveal>
               ))}
             </div>
           ))}

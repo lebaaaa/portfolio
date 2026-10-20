@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { Blocks, Clip } from "@/components/blocks";
 import { KeepHyphens } from "@/components/keep-hyphens";
 import { PhoneShowcase } from "@/components/phone-showcase";
+import { PillLink } from "@/components/pill-link";
 import { getProject, projects } from "@/lib/projects";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
 export const dynamicParams = false;
 
@@ -70,16 +71,9 @@ export default async function ProjectPage({
         {project.links && (
           <p className="mt-6 flex flex-wrap gap-3">
             {project.links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 rounded-full bg-fg px-5 py-2.5 text-sm font-medium text-bg transition-transform hover:-translate-y-0.5"
-              >
+              <PillLink key={l.href} href={l.href} tone="dark" dir="out" external>
                 {l.label}
-                <ArrowUpRight size={15} weight="bold" aria-hidden />
-              </a>
+              </PillLink>
             ))}
           </p>
         )}

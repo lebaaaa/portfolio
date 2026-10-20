@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { PillLink } from "@/components/pill-link";
+import { SiteNav } from "@/components/site-nav";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -41,12 +44,6 @@ export const viewport: Viewport = {
   ],
 };
 
-const nav = [
-  { href: "/#work", label: "Projects" },
-  { href: "/about", label: "About" },
-  { href: "#contact", label: "Contact" },
-];
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -61,50 +58,34 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
 
-        <header className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-4 sm:px-8">
+        <SmoothScroll />
+        <header className="sticky top-0 z-40 bg-bg/80 backdrop-blur-md">
+          <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-8">
           <Link
             href="/"
-            className="font-display text-xl font-bold tracking-tight"
+            className="shrink-0 font-display text-lg font-bold tracking-tight whitespace-nowrap sm:text-xl"
           >
             Abel Goh
-            <span lang="ja" className="ml-2 font-sans text-sm font-medium text-accent-ink">
+            <span lang="ja" className="ml-1.5 font-sans text-xs font-medium text-accent-ink sm:ml-2 sm:text-sm">
               アベル
             </span>
           </Link>
-          <nav aria-label="Main" className="flex gap-1 text-sm font-medium sm:gap-2">
-            {nav.map((n) => (
-              <Link
-                key={n.href}
-                href={n.href}
-                className="rounded-full px-3 py-1.5 text-muted transition-colors hover:bg-panel hover:text-fg"
-              >
-                {n.label}
-              </Link>
-            ))}
-          </nav>
+          <SiteNav />
+          </div>
         </header>
 
         <main id="main" className="flex-1">
           {children}
         </main>
 
-        <footer id="contact" className="mt-28 scroll-mt-4 bg-band text-band-fg">
+        <footer id="contact" className="mt-28 scroll-mt-20 bg-band text-band-fg">
           <div className="mx-auto w-full max-w-6xl px-4 pt-16 pb-10 sm:px-8 sm:pt-24">
             <h2 className="max-w-3xl font-display text-4xl leading-[1.05] font-bold tracking-tight sm:text-6xl">
               Curious about a project, or want to work on something together?
             </h2>
-            <a
-              href={`mailto:${site.email}`}
-              className="group mt-10 inline-flex max-w-full items-center gap-3 rounded-full bg-gold px-6 py-3.5 font-medium text-on-color transition-transform hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <span className="truncate">{site.email}</span>
-              <ArrowUpRight
-                size={18}
-                weight="bold"
-                aria-hidden
-                className="shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
-            </a>
+            <PillLink href={`mailto:${site.email}`} tone="gold" dir="out" className="mt-10">
+              {site.email}
+            </PillLink>
             <ul className="mt-16 grid gap-x-8 gap-y-6 border-t border-band-line pt-8 sm:grid-cols-2 lg:grid-cols-4">
               {site.links.map((l) => (
                 <li key={l.label}>
