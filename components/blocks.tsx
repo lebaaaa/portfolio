@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { CodeSnippet } from "@/components/code-snippet";
+import { LoopVideo } from "@/components/loop-video";
 import type { Block, Media } from "@/lib/projects";
 
 // Renders `code` spans inside otherwise plain text.
@@ -23,17 +24,28 @@ export function Rich({ text }: { text: string }) {
 export function Clip({ media, eager }: { media: Media; eager?: boolean }) {
   return (
     <figure>
-      <div className="overflow-hidden rounded-sm border border-line bg-black">
-        <Image
-          src={media.src}
-          alt={media.alt}
-          width={media.width}
-          height={media.height}
-          unoptimized
-          loading={eager ? "eager" : "lazy"}
-          className="h-auto w-full"
-          style={media.pixelated ? { imageRendering: "pixelated" } : undefined}
-        />
+      <div className="overflow-hidden rounded-2xl bg-black">
+        {media.src.endsWith(".mp4") ? (
+          <LoopVideo
+            src={media.src}
+            poster={media.poster}
+            width={media.width}
+            height={media.height}
+            label={media.alt}
+            pixelated={media.pixelated}
+          />
+        ) : (
+          <Image
+            src={media.src}
+            alt={media.alt}
+            width={media.width}
+            height={media.height}
+            unoptimized
+            loading={eager ? "eager" : "lazy"}
+            className="h-auto w-full"
+            style={media.pixelated ? { imageRendering: "pixelated" } : undefined}
+          />
+        )}
       </div>
       <figcaption className="mt-2 text-sm text-muted">{media.caption}</figcaption>
     </figure>
@@ -59,7 +71,7 @@ function GridWorld() {
             key={i}
             className={`flex aspect-square items-center justify-center border-r border-b border-line ${
               c === "X"
-                ? "bg-accent/15 text-accent"
+                ? "bg-accent/15 text-accent-ink"
                 : c === "G"
                   ? "bg-fg text-bg"
                   : c === "A"
@@ -107,7 +119,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             return (
               <blockquote
                 key={i}
-                className="border-l-2 border-accent py-1 pl-5 font-serif text-xl leading-snug"
+                className="border-l-4 border-accent py-1 pl-5 font-display text-2xl leading-snug font-semibold tracking-tight"
               >
                 {b.text}
               </blockquote>
@@ -158,7 +170,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
           case "figure":
             return (
               <figure key={i}>
-                <div className="overflow-hidden rounded-sm border border-line bg-[#fcfcfa]">
+                <div className="overflow-hidden rounded-2xl bg-[#fcfcfa] ring-1 ring-line ring-inset">
                   <Image
                     src={b.src}
                     alt={b.alt}
@@ -179,15 +191,25 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {b.items.map((item) => (
                     <div key={item.src}>
-                      <div className="overflow-hidden rounded-sm border border-line bg-black">
-                        <Image
-                          src={item.src}
-                          alt={item.alt}
-                          width={item.width}
-                          height={item.height}
-                          unoptimized
-                          className="h-auto w-full"
-                        />
+                      <div className="overflow-hidden rounded-2xl bg-black">
+                        {item.src.endsWith(".mp4") && item.poster ? (
+                          <LoopVideo
+                            src={item.src}
+                            poster={item.poster}
+                            width={item.width}
+                            height={item.height}
+                            label={item.alt}
+                          />
+                        ) : (
+                          <Image
+                            src={item.src}
+                            alt={item.alt}
+                            width={item.width}
+                            height={item.height}
+                            unoptimized
+                            className="h-auto w-full"
+                          />
+                        )}
                       </div>
                       <p className="mt-1.5 font-mono text-xs text-muted">{item.label}</p>
                     </div>

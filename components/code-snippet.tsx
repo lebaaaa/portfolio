@@ -22,11 +22,11 @@ export async function CodeSnippet({
 
   return (
     <figure>
-      <div className="overflow-hidden rounded-sm bg-band text-band-fg">
+      <div className="overflow-hidden rounded-2xl bg-band text-band-fg">
         <div className="flex items-baseline justify-between gap-4 border-b border-band-line px-4 py-2 font-mono text-[11px] text-band-muted">
           <span className="truncate">{s.file}</span>
           <span className="shrink-0 tabular-nums">
-            lines {s.start}–{end}
+            lines {s.start}-{end}
           </span>
         </div>
         <div

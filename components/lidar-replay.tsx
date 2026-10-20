@@ -1,5 +1,6 @@
 "use client";
 
+import { Pause, Play } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import episode from "@/lib/episode-90023.json";
 
@@ -15,19 +16,32 @@ const HOLD = 12; // extra ticks to pause on the goal before looping
 const pt = (x: number, y: number) => `${(x * S).toFixed(1)},${(room - y * S).toFixed(1)}`;
 
 export function LidarReplay() {
-  // -1 until the replay starts; reduced-motion visitors keep a still frame.
+  // -1 until the replay starts; reduced-motion visitors keep a still frame
+  // unless they press play themselves.
   const [tick, setTick] = useState(-1);
+  const [running, setRunning] = useState(true);
+  const [chosen, setChosen] = useState(false);
 
   useEffect(() => {
+    if (!running) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+    if (reduce && !chosen) return;
     const id = window.setInterval(() => {
       setTick((t) => (t + 1) % (steps + HOLD));
     }, 200);
     return () => window.clearInterval(id);
-  }, []);
+  }, [running, chosen]);
 
   const playing = tick >= 0;
+  const animating = running && playing;
+  const toggle = () => {
+    if (animating) {
+      setRunning(false);
+    } else {
+      setChosen(true);
+      setRunning(true);
+    }
+  };
   const step = playing ? Math.min(tick, steps - 1) : Math.floor(steps * 0.55); // index into scans
   const [lx, ly] = episode.lidar[step];
   const rays = episode.rays[step];
@@ -41,7 +55,7 @@ export function LidarReplay() {
 
   return (
     <figure>
-      <div className="relative overflow-hidden rounded-sm bg-band">
+      <div className="relative overflow-hidden rounded-2xl bg-band">
         <svg
           viewBox={`-12 -12 ${room + 24} ${room + 24}`}
           className="block h-auto w-full"
@@ -119,13 +133,25 @@ export function LidarReplay() {
             strokeLinecap="round"
           />
         </svg>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={animating ? "Pause replay" : "Play replay"}
+          className="absolute right-3 bottom-3 grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-[background-color,transform] hover:bg-white/25 active:scale-95"
+        >
+          {animating ? (
+            <Pause size={15} weight="fill" aria-hidden />
+          ) : (
+            <Play size={15} weight="fill" aria-hidden />
+          )}
+        </button>
       </div>
       <figcaption className="mt-2 flex items-start justify-between gap-4 text-sm text-muted">
         <span>
           A real run of my robot model on test layout {episode.layout}, replayed
           at its actual 5 decisions a second. Gold lines are what its LiDAR sees.
         </span>
-        <span className="shrink-0 pt-0.5 font-mono text-xs text-accent tabular-nums">
+        <span className="shrink-0 pt-0.5 font-mono text-xs text-accent-ink tabular-nums">
           {playing
             ? done
               ? "goal ✓"

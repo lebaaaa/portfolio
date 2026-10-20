@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
   title: "About",
@@ -90,9 +91,8 @@ function GreekChurch() {
 
 export default function AboutPage() {
   return (
-    <div className="pt-14 sm:pt-24">
-      <p className="dot font-mono text-[13px] text-muted">About</p>
-      <h1 className="mt-5 max-w-3xl font-serif text-4xl leading-[1.1] tracking-tight sm:text-5xl">
+    <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-8 sm:pt-14">
+      <h1 className="max-w-4xl font-display text-[clamp(2.4rem,5.2vw,4.25rem)] leading-[1.02] font-bold tracking-[-0.03em]">
         Learning fast, building consistently, improving every project.
       </h1>
 
@@ -112,7 +112,7 @@ export default function AboutPage() {
             interface, or how a small decision changes the final result.
           </p>
 
-          <h2 className="pt-6 font-serif text-2xl tracking-tight">
+          <h2 className="pt-6 font-display text-2xl font-bold tracking-tight">
             How I approach a problem
           </h2>
           <p>
@@ -127,7 +127,7 @@ export default function AboutPage() {
             a section for what confused me, next to what I figured out.
           </p>
 
-          <h2 className="pt-6 font-serif text-2xl tracking-tight">
+          <h2 className="pt-6 font-display text-2xl font-bold tracking-tight">
             Outside of engineering
           </h2>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
@@ -152,7 +152,7 @@ export default function AboutPage() {
             .
           </p>
 
-          <h2 className="pt-6 font-serif text-2xl tracking-tight">
+          <h2 className="pt-6 font-display text-2xl font-bold tracking-tight">
             Looking ahead
           </h2>
           <p>
@@ -165,28 +165,26 @@ export default function AboutPage() {
         </div>
 
         <aside>
-          <dl className="divide-y divide-line border-y border-line">
+          <dl className="space-y-5 rounded-2xl bg-band p-6 text-band-fg sm:p-7 lg:sticky lg:top-6">
             {facts.map(([k, v]) => (
-              <div key={k} className="grid grid-cols-[6.5rem_1fr] gap-4 py-3.5">
-                <dt className="font-mono text-xs leading-6 text-muted">{k}</dt>
-                <dd className="leading-6">{v}</dd>
+              <div key={k}>
+                <dt className="font-mono text-xs font-medium text-gold">{k}</dt>
+                <dd className="mt-1 leading-snug">{v}</dd>
               </div>
             ))}
           </dl>
           <Link
             href="/#work"
-            className="mt-6 inline-block font-medium underline decoration-line hover:decoration-accent"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-on-color transition-transform hover:-translate-y-0.5"
           >
-            See the projects →
+            Projects
+            <ArrowRight size={16} weight="bold" aria-hidden />
           </Link>
         </aside>
       </div>
 
       <section id="photography" className="mt-24 scroll-mt-8">
-        <p className="dot dot-gold font-mono text-[13px] text-muted">
-          Photography
-        </p>
-        <h2 className="mt-3 font-serif text-3xl tracking-tight">
+        <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           Things I stopped to look at
         </h2>
         <div className="mt-8 space-y-3 sm:space-y-4">
@@ -210,7 +208,7 @@ export default function AboutPage() {
                   width={p.width}
                   height={p.height}
                   sizes="(min-width: 640px) 60vw, 100vw"
-                  className="h-auto w-full rounded-sm"
+                  className="h-auto w-full rounded-2xl"
                 />
               ))}
             </div>

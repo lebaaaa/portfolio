@@ -1,16 +1,22 @@
 @import "tailwindcss";
 
-/* Palette taken from my intro slides: navy, coral, gold. */
+/*
+ * Palette from my intro slides: navy ink, coral (#FF5A5F) and gold (#F2B544).
+ * Coral and gold are fills; text uses the -ink variants so small text keeps
+ * WCAG AA contrast. Shapes: buttons and chips are pills, media and tiles 16px.
+ */
 :root {
-  --bg: #fbfaf6;
+  --bg: #f5f6fa;
   --panel: #ffffff;
   --fg: #16213e;
-  --muted: #5a6178;
-  --line: #e4e1d8;
-  --accent: #e5484d;
+  --muted: #535c76;
+  --line: #e0e3ed;
+  --accent: #ff5a5f;
+  --accent-ink: #cf343a;
   --gold: #f2b544;
+  --on-color: #16213e;
   --band: #16213e;
-  --band-fg: #f4f1ea;
+  --band-fg: #f4f2ec;
   --band-muted: #aab1c7;
   --band-line: #2b3760;
   color-scheme: light;
@@ -31,17 +37,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1528;
-    --panel: #141d36;
-    --fg: #eceef5;
-    --muted: #98a1ba;
-    --line: #243056;
-    --accent: #ff6b6f;
+    --bg: #0b1124;
+    --panel: #131b34;
+    --fg: #eef0f7;
+    --muted: #9ea7c0;
+    --line: #222c4e;
+    --accent: #ff5a5f;
+    --accent-ink: #ff8a8e;
     --gold: #f2b544;
-    --band: #19244a;
-    --band-fg: #f4f1ea;
+    --on-color: #16213e;
+    --band: #18234a;
+    --band-fg: #f4f2ec;
     --band-muted: #aab1c7;
-    --band-line: #2f3c6b;
+    --band-line: #2e3c70;
     color-scheme: dark;
   }
 }
@@ -53,31 +61,47 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
   --color-gold: var(--gold);
+  --color-on-color: var(--on-color);
   --color-band: var(--band);
   --color-band-fg: var(--band-fg);
   --color-band-muted: var(--band-muted);
   --color-band-line: var(--band-line);
-  --font-sans: var(--font-plex-sans);
-  --font-mono: var(--font-plex-mono);
-  --font-serif: var(--font-serif);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bricolage);
 }
 
 html {
   scroll-behavior: smooth;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}
+
 ::selection {
   background: var(--accent);
-  color: var(--bg);
+  color: var(--on-color);
 }
 
 a {
@@ -88,15 +112,15 @@ a {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
-/* Gold marker under a phrase, like a highlighter on paper. */
+/* Gold marker under a phrase, like a highlighter. */
 .mark {
   background-image: linear-gradient(
     transparent 62%,
-    color-mix(in srgb, var(--gold) 55%, transparent) 62%,
-    color-mix(in srgb, var(--gold) 55%, transparent) 92%,
+    color-mix(in srgb, var(--gold) 60%, transparent) 62%,
+    color-mix(in srgb, var(--gold) 60%, transparent) 92%,
     transparent 92%
   );
   -webkit-box-decoration-break: clone;
@@ -109,31 +133,16 @@ a {
     background-image: linear-gradient(
       transparent 86%,
       var(--gold) 86%,
-      var(--gold) 93%,
-      transparent 93%
+      var(--gold) 94%,
+      transparent 94%
     );
   }
-}
-
-.dot::before {
-  content: "";
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-right: 0.55rem;
-  border-radius: 999px;
-  background: var(--accent);
-  vertical-align: 0.05em;
-}
-
-.dot-gold::before {
-  background: var(--gold);
 }
 
 .code-snippet pre {
   background: transparent !important;
   margin: 0;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
   width: max-content;
   min-width: 100%;
 }
@@ -154,17 +163,12 @@ a {
   opacity: 0.55;
 }
 
-.prose-body p + p {
-  margin-top: 1rem;
-}
-
-.prose-body code,
 .inline-code {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.86em;
-  background: color-mix(in srgb, var(--line) 55%, transparent);
+  background: color-mix(in srgb, var(--line) 70%, transparent);
   padding: 0.08em 0.35em;
-  border-radius: 3px;
+  border-radius: 4px;
   overflow-wrap: anywhere;
 }
 

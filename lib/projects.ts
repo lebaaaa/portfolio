@@ -15,7 +15,7 @@ export type Block =
     }
   | {
       type: "pair";
-      items: { src: string; alt: string; label: string; width: number; height: number }[];
+      items: { src: string; poster?: string; alt: string; label: string; width: number; height: number }[];
       caption: string;
     }
   | { type: "gridworld" }
@@ -66,7 +66,7 @@ export const projects: Project[] = [
     short:
       "My own 2D simulator for a TurtleBot3 Burger and two reward designs, checked in Gazebo through ROS 2, tested with people walking through the room, and finally run on a real robot.",
     group: "rl",
-    when: "22–30 Sep 2026",
+    when: "22-30 Sep 2026",
     role: "Solo",
     stack: [
       "Python",
@@ -311,14 +311,16 @@ export const projects: Project[] = [
             type: "pair",
             items: [
               {
-                src: "/media/fastbot-run5.gif",
+                src: "/media/fastbot-run5.mp4",
+                poster: "/media/fastbot-run5-poster.jpg",
                 alt: "Top-down view built from the robot's LiDAR: grey dots show walls around it, and the robot drives a short curve into the green goal circle.",
                 label: "run 5: reached in 5.9 s",
                 width: 500,
                 height: 500,
               },
               {
-                src: "/media/fastbot-run4.gif",
+                src: "/media/fastbot-run4.mp4",
+                poster: "/media/fastbot-run4-poster.jpg",
                 alt: "Top-down view built from the robot's LiDAR: the robot drives about half a metre and stops just outside the green goal circle.",
                 label: "run 4: 0.3 m short at the time limit",
                 width: 500,
@@ -329,7 +331,7 @@ export const projects: Project[] = [
           },
           {
             type: "p",
-            text: "As a first real-robot demonstration it was weak. The failed runs looked like the \"stuck in front of an obstacle\" failure I'd seen in simulation, the model city is nothing like my training rooms, and not all of the FastBot's specs were published, so my simulated version wasn't an exact match. Whether a real TurtleBot3 would do better stays a hypothesis until I can test on one.",
+            text: "As a first real-robot demonstration it was weak. The failed runs looked like the “stuck in front of an obstacle” failure I'd seen in simulation, the model city is nothing like my training rooms, and not all of the FastBot's specs were published, so my simulated version wasn't an exact match. Whether a real TurtleBot3 would do better stays a hypothesis until I can test on one.",
           },
         ],
       },
@@ -372,16 +374,16 @@ export const projects: Project[] = [
     short:
       "PPO driving CarRacing-v3 from a 96×96 image. Best model: 849 mean reward on 30 random tracks, 18 laps finished, 0.56% of steps off the road.",
     group: "rl",
-    when: "14–22 Sep 2026",
+    when: "14-22 Sep 2026",
     role: "Solo",
     stack: ["Python", "Gymnasium", "Stable-Baselines3 (PPO, CnnPolicy)", "PyTorch (CUDA)"],
     media: {
-      src: "/media/car.webp",
-      poster: "/media/car.jpg",
+      src: "/media/car.mp4",
+      poster: "/media/car-poster.jpg",
       alt: "Top-down view of the red car following a grey track through green grass.",
       caption: "The final model (1,835,008 steps) on track seed 3, recorded for this page. It finished that lap with a reward of 912.9.",
-      width: 420,
-      height: 245,
+      width: 840,
+      height: 490,
     },
     stats: [
       { value: "849.0 ± 10.2", label: "mean reward on 30 random tracks" },
@@ -417,14 +419,16 @@ export const projects: Project[] = [
             type: "pair",
             items: [
               {
-                src: "/media/hairpin-before.webp",
+                src: "/media/hairpin-before.mp4",
+                poster: "/media/hairpin-before-poster.jpg",
                 alt: "The red car arrives at a bend at speed, slides off the track and spins on the grass, leaving skid marks.",
                 label: "753,664 steps: slides off",
                 width: 420,
                 height: 245,
               },
               {
-                src: "/media/hairpin-after.webp",
+                src: "/media/hairpin-after.mp4",
+                poster: "/media/hairpin-after-poster.jpg",
                 alt: "The red car takes the same bend and stays on the grey track.",
                 label: "final model, a week later: stays on",
                 width: 420,
@@ -589,7 +593,7 @@ export const projects: Project[] = [
     short:
       "A Gymnasium environment written from scratch, trained with PPO and DQN, then broken and fixed until both reached the goal from every starting cell.",
     group: "rl",
-    when: "9–11 Sep 2026",
+    when: "9-11 Sep 2026",
     role: "Solo",
     stack: ["Python", "Gymnasium", "Stable-Baselines3 (PPO, DQN)", "NumPy"],
     stats: [
@@ -605,7 +609,7 @@ export const projects: Project[] = [
           { type: "gridworld" },
           {
             type: "p",
-            text: "Even the basics took some working out. My first check for \"did the agent bump a wall\", `row != 0 or row != size-1`, is true everywhere, so it never caught anything. Comparing the position before and after the move was the right test.",
+            text: "Even the basics took some working out. My first check for “did the agent bump a wall”, `row != 0 or row != size-1`, is true everywhere, so it never caught anything. Comparing the position before and after the move was the right test.",
           },
           {
             type: "p",
@@ -665,7 +669,7 @@ export const projects: Project[] = [
           },
           {
             type: "p",
-            text: "After retraining, both PPO and DQN reached the goal from every valid starting cell. It was a training-distribution problem, not a reward or coordinate bug, and not just \"needs more training\".",
+            text: "After retraining, both PPO and DQN reached the goal from every valid starting cell. It was a training-distribution problem, not a reward or coordinate bug, and not just “needs more training”.",
           },
           {
             type: "p",
@@ -681,7 +685,7 @@ export const projects: Project[] = [
             items: [
               "The environment had no step limit, so a bad policy could loop forever. FrozenLake's built-in wrapper had been hiding that requirement from me.",
               "`self.np_random` is an object with methods, not a function. I tried calling `self.np_random(7)` before finding `.integers()`.",
-              "Random starts change what \"optimal reward\" means. With one fixed start it was a single number, 23. With 58 starts it ranges from 10 to 23, so the training curve needed a different baseline.",
+              "Random starts change what “optimal reward” means. With one fixed start it was a single number, 23. With 58 starts it ranges from 10 to 23, so the training curve needed a different baseline.",
             ],
           },
         ],
@@ -698,8 +702,8 @@ export const projects: Project[] = [
     role: "Solo",
     stack: ["Python", "Gymnasium", "NumPy"],
     media: {
-      src: "/media/frozen.webp",
-      poster: "/media/frozen.jpg",
+      src: "/media/frozen.mp4",
+      poster: "/media/frozen-poster.jpg",
       alt: "A 4×4 grid of ice with four holes. The elf walks from the top-left corner to the present in the bottom-right.",
       caption: "My trained Q-table playing greedily on the slippery map, recorded for this page.",
       width: 360,
@@ -760,9 +764,9 @@ export const projects: Project[] = [
             type: "table",
             head: ["Training episodes (slippery)", "Success rate"],
             rows: [
-              ["20,000", "71–78%"],
+              ["20,000", "71-78%"],
               ["100,000", "78%"],
-              ["200,000", "71–72%"],
+              ["200,000", "71-72%"],
             ],
           },
           {
@@ -787,12 +791,12 @@ export const projects: Project[] = [
     short:
       "PPO landing a spacecraft between two flags, then reading the environment's source to explain why it lands where it does.",
     group: "rl",
-    when: "7–8 Sep 2026",
+    when: "7-8 Sep 2026",
     role: "Solo",
     stack: ["Python", "Gymnasium", "Stable-Baselines3 (PPO)", "Box2D"],
     media: {
-      src: "/media/lunar.webp",
-      poster: "/media/lunar.jpg",
+      src: "/media/lunar.mp4",
+      poster: "/media/lunar-poster.jpg",
       alt: "A purple lander descending on its main engine and settling between two yellow flags on white ground.",
       caption: "The trained model (about 1M steps) landing on seed 3, recorded for this page. Episode return 235.3; 200 counts as solved.",
       width: 480,
@@ -857,7 +861,7 @@ export const projects: Project[] = [
             type: "list",
             items: [
               "Why shape at all: if the only reward were a perfect landing, every other attempt would score the same and the agent would need a lucky landing to learn anything.",
-              "Every term is graded, not pass or fail. Slightly closer to the pad, slightly slower or slightly more upright is always slightly better, so every step tells the agent \"warmer\" or \"colder\".",
+              "Every term is graded, not pass or fail. Slightly closer to the pad, slightly slower or slightly more upright is always slightly better, so every step tells the agent “warmer” or “colder”.",
               "The reward is `shaping - prev_shaping`: it pays for improving on the last step, not for being in a good spot. Where `prev_shaping` started was one of my questions that day. It's reset at the start of every episode in `reset()`.",
               "Badly designed shaping leads to reward hacking, where the agent chases points instead of the task. I ran into exactly that later, in GridWorld and CarRacing.",
             ],
@@ -889,7 +893,7 @@ export const projects: Project[] = [
     short:
       "A two-person Flutter app for finding clinics anywhere in Singapore, booking appointments, looking up food nutrition and reading health news.",
     group: "earlier",
-    when: "Jul–Aug 2026",
+    when: "Jul-Aug 2026",
     role: "Team of 2",
     stack: ["Flutter", "Dart", "Android Studio", "Firebase Auth", "Cloud Firestore", "Geoapify Places API", "USDA FoodData Central API"],
     links: [{ label: "View the code on GitHub", href: "https://github.com/lebaaaa/healthcare" }],
@@ -971,7 +975,7 @@ export const projects: Project[] = [
             type: "list",
             items: [
               "Handling slow network calls in a UI with `FutureBuilder`: showing a spinner while waiting, an error if the request fails, and the list once data arrives.",
-              "Turning another service's JSON into my own models, with a fallback like \"Contact not found\" for every field a clinic might be missing, so one incomplete listing doesn't crash the screen.",
+              "Turning another service's JSON into my own models, with a fallback like “Contact not found” for every field a clinic might be missing, so one incomplete listing doesn't crash the screen.",
               "Storing per-user data in Firestore by tagging each appointment with the user's ID and querying on it.",
               "Working in one repository with someone else at the same time, including sorting out our merge commits.",
             ],

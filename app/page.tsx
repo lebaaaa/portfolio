@@ -1,181 +1,167 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowDown, ArrowRight, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { LidarReplay } from "@/components/lidar-replay";
-import { ProjectList } from "@/components/project-list";
-import { earlierProjects, getProject, rlProjects } from "@/lib/projects";
+import { Reveal } from "@/components/reveal";
+import { WorkBento } from "@/components/work-bento";
+import { earlierProjects } from "@/lib/projects";
 
-const clips = [
-  { slug: "car-racing", label: "CarRacing, final model" },
-  { slug: "lunar-lander", label: "LunarLander, PPO" },
-  { slug: "frozen-lake", label: "FrozenLake, my Q-table" },
+// Every number here comes from the project write-ups.
+const highlights = [
+  { value: "849", label: "mean reward across 30 random CarRacing tracks", href: "/projects/car-racing" },
+  { value: "59/60", label: "Gazebo runs that matched my own simulator", href: "/projects/turtlebot3-lidar-robot" },
+  { value: "3/5", label: "goals reached on a real robot, driven remotely", href: "/projects/turtlebot3-lidar-robot" },
+  { value: "58/58", label: "GridWorld start cells solved by PPO and DQN", href: "/projects/gridworld" },
 ];
 
-export default function Home() {
-  const featured = getProject("turtlebot3-lidar-robot")!;
+const container = "mx-auto w-full max-w-6xl px-4 sm:px-8";
 
+export default function Home() {
   return (
     <>
-      <section className="grid items-center gap-12 pt-12 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
-        <div>
-          <p className="dot font-mono text-[13px] text-muted">
-            Nara, Japan · interning at NIT Nara College
-          </p>
-          <h1 className="mt-5 font-serif text-[2.1rem] leading-[1.12] tracking-tight sm:text-5xl sm:leading-[1.08] lg:text-[2.9rem]">
-            I&rsquo;m Abel, an Electronics &amp; Computer Engineering student at
-            Nanyang Polytechnic in Singapore, now interning at NIT Nara College
-            in Japan. Before I left, I taught myself reinforcement learning by
-            training{" "}
-            <span className="mark">a simulated race car and a LiDAR robot</span>{" "}
-            to drive themselves.
+      <section className={`${container} pt-6 pb-20 sm:pt-10 sm:pb-24`}>
+        <Reveal>
+          <h1 className="max-w-5xl font-display text-[clamp(2.6rem,6.4vw,5.4rem)] leading-[0.98] font-bold tracking-[-0.03em]">
+            I teach cars and robots to{" "}
+            <span className="mark">drive themselves.</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            These are the projects, with the numbers and the parts that
-            didn&rsquo;t work the first time.
-          </p>
-          <p className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-line px-3.5 py-1.5 font-mono text-xs text-muted">
-            <span className="h-2 w-2 rounded-full bg-gold" />
-            Latest: my navigation model on a real robot, 3 of 5 goals reached
-          </p>
+        </Reveal>
+
+        <div className="mt-10 grid items-start gap-12 lg:mt-12 lg:grid-cols-[1fr_minmax(0,25rem)] lg:gap-16">
+          <Reveal delay={0.08}>
+            <p className="max-w-md text-lg leading-relaxed text-muted sm:text-xl">
+              Electronics &amp; Computer Engineering student at Nanyang
+              Polytechnic, now interning at NIT Nara College in Japan.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="#work"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-on-color transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                Projects
+                <ArrowDown size={16} weight="bold" aria-hidden />
+              </Link>
+              <Link
+                href="#contact"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium ring-1 ring-line transition-[background-color,transform] ring-inset hover:-translate-y-0.5 hover:bg-panel active:translate-y-0"
+              >
+                Contact
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={0.16}>
+            <LidarReplay />
+          </Reveal>
         </div>
-        <LidarReplay />
       </section>
 
-      <section aria-label="Clips of trained agents">
-        <div className="grid grid-cols-[1.5fr_1fr] gap-3 sm:grid-cols-[1.714fr_1.5fr_1fr] sm:gap-4">
-          {clips.map((c) => {
-            const p = getProject(c.slug)!;
-            const m = p.media!;
-            return (
-              <Link
-                key={c.slug}
-                href={`/projects/${c.slug}`}
-                className={`group block ${c.slug === "car-racing" ? "col-span-2 sm:col-span-1" : ""}`}
-              >
-                <div className="overflow-hidden rounded-sm border border-line bg-black">
-                  <Image
-                    src={m.src}
-                    alt={m.alt}
-                    width={m.width}
-                    height={m.height}
-                    unoptimized
-                    loading="eager"
-                    className="h-auto w-full transition-opacity group-hover:opacity-90"
-                    style={m.pixelated ? { imageRendering: "pixelated" } : undefined}
+      <section aria-label="Highlights" className="bg-accent text-on-color">
+        <div className={`${container} grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-4 lg:py-16`}>
+          {highlights.map((h, i) => (
+            <Reveal key={h.label} delay={i * 0.06}>
+              <Link href={h.href} className="group block">
+                <p className="font-display text-5xl leading-none font-bold tracking-tight tabular-nums sm:text-6xl">
+                  {h.value}
+                </p>
+                <p className="mt-3 max-w-[16rem] text-sm leading-snug font-medium">
+                  {h.label}
+                  <ArrowRight
+                    size={14}
+                    weight="bold"
+                    aria-hidden
+                    className="ml-1 inline align-[-2px] transition-transform group-hover:translate-x-0.5"
                   />
-                </div>
-                <p className="mt-2 font-mono text-xs text-muted group-hover:text-accent">
-                  {c.label} →
                 </p>
               </Link>
-            );
-          })}
-        </div>
-        <p className="mt-3 text-sm text-muted">
-          Recorded from the trained models, not edited.
-        </p>
-      </section>
-
-      <section className="mt-24 sm:mt-32">
-        <p className="dot font-mono text-[13px] text-muted">Latest</p>
-        <div className="mt-4 grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
-          <div>
-            <h2 className="font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-              <Link
-                href={`/projects/${featured.slug}`}
-                className="decoration-accent decoration-1 underline-offset-4 hover:underline"
-              >
-                {featured.title}
-              </Link>
-            </h2>
-            <p className="mt-4 leading-relaxed">{featured.intro}</p>
-            <dl className="mt-8 divide-y divide-line border-y border-line">
-              {featured.stats!.map((s) => (
-                <div
-                  key={s.label}
-                  className="grid grid-cols-[10.5rem_1fr] items-baseline gap-4 py-3"
-                >
-                  <dt className="font-mono text-base font-medium whitespace-nowrap text-accent tabular-nums sm:text-lg">
-                    {s.value}
-                  </dt>
-                  <dd className="text-sm text-muted">{s.label}</dd>
-                </div>
-              ))}
-            </dl>
-            <Link
-              href={`/projects/${featured.slug}`}
-              className="mt-6 inline-block font-medium underline decoration-line hover:decoration-accent"
-            >
-              Read the write-up →
-            </Link>
-          </div>
-          <figure>
-            <div className="overflow-hidden rounded-sm border border-line bg-[#fcfcfa]">
-              <Image
-                src="/figures/4_trajectories.png"
-                alt="Two top-down room plans with the same start and goal. The wall-arm robot drives into a box and crashes after 66 steps. The graded-arm robot takes the same route and stays pressed against the box for 300 steps."
-                width={1448}
-                height={729}
-                sizes="(min-width: 1024px) 600px, 100vw"
-                className="h-auto w-full"
-              />
-            </div>
-            <figcaption className="mt-2 text-sm text-muted">
-              Same start, two reward designs. One crashes, the other gets
-              stuck.
-            </figcaption>
-          </figure>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      <section id="work" className="mt-24 scroll-mt-8 sm:mt-32">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-serif text-3xl tracking-tight">
+      <section id="work" className={`${container} scroll-mt-4 pt-24 sm:pt-32`}>
+        <Reveal>
+          <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
             Reinforcement learning
           </h2>
-          <p className="dot dot-gold font-mono text-xs text-muted">
-            Sep 2026 · personal projects
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">
+            Personal projects from September 2026, newest first. Each one picks
+            up where the last ran out, and every write-up includes what broke.
           </p>
-        </div>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Newest first. Read from the bottom up, each one picks up where the
-          last ran out: a library agent, then Q-learning by hand, my own
-          environment, pixels, and finally a robot.
-        </p>
-        <div className="mt-8">
-          <ProjectList projects={rlProjects} />
+        </Reveal>
+        <div className="mt-10">
+          <WorkBento />
         </div>
       </section>
 
-      <section className="mt-20">
-        <h2 className="font-serif text-3xl tracking-tight">Earlier projects</h2>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Mobile, embedded systems, desktop and web projects.
-        </p>
-        <div className="mt-8">
-          <ProjectList projects={earlierProjects} start={rlProjects.length + 1} />
+      <section className={`${container} pt-24 sm:pt-32`}>
+        <Reveal>
+          <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+            Earlier projects
+          </h2>
+        </Reveal>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:gap-5">
+          {earlierProjects.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 0.05}>
+              <Link
+                href={`/projects/${p.slug}`}
+                className="group flex h-full flex-col rounded-2xl bg-panel p-6 ring-1 ring-line transition-[transform,box-shadow] ring-inset hover:-translate-y-1 hover:shadow-[0_18px_40px_-24px_rgb(22_33_62/0.35)] sm:p-7"
+              >
+                <p className="font-mono text-xs font-medium text-accent-ink">
+                  {p.when ?? p.role}
+                </p>
+                <h3 className="mt-2 font-display text-2xl leading-tight font-bold tracking-tight">
+                  {p.title}
+                </h3>
+                <p className="mt-2 flex-1 leading-relaxed text-muted">{p.short}</p>
+                <ArrowUpRight
+                  size={20}
+                  weight="bold"
+                  aria-hidden
+                  className="mt-5 self-end transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </Link>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      <section className="mt-24 grid gap-6 sm:mt-32 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
-        <h2 className="font-serif text-3xl leading-tight tracking-tight">
-          Curious, methodical, and driven to build things that work.
-        </h2>
-        <div className="leading-relaxed">
-          <p>
-            I learn by building. I break a problem into parts, try to
-            understand it before jumping to a fix, and treat mistakes as the
-            useful part. My daily logs from these projects are mostly lists
-            of what confused me and what I figured out.
-          </p>
-          <p className="mt-4">
-            Outside of engineering I bowl competitively, play badminton and take photos.
-          </p>
-          <Link
-            href="/about"
-            className="mt-6 inline-block font-medium underline decoration-line hover:decoration-accent"
-          >
-            More about me →
-          </Link>
+      <section className={`${container} pt-24 sm:pt-32`}>
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <Reveal>
+            <h2 className="font-display text-3xl leading-tight font-bold tracking-tight sm:text-4xl">
+              Curious, methodical, and driven to build things that work.
+            </h2>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
+              I learn by building, and my daily logs are mostly lists of what
+              confused me and what I figured out. Outside of engineering I bowl
+              competitively, play badminton and take photos.
+            </p>
+            <Link
+              href="/about"
+              className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium ring-1 ring-line transition-[background-color,transform] ring-inset hover:-translate-y-0.5 hover:bg-panel"
+            >
+              About me
+              <ArrowRight size={16} weight="bold" aria-hidden />
+            </Link>
+          </Reveal>
+          <Reveal delay={0.1} className="grid grid-cols-[1.25fr_1fr] items-end gap-4">
+            <Image
+              src="/photos/window-dusk.jpg"
+              alt="A dark bedroom looking out through a barred window at apartment blocks against an orange dusk sky."
+              width={1800}
+              height={1350}
+              sizes="(min-width: 1024px) 320px, 55vw"
+              className="h-auto w-full rounded-2xl"
+            />
+            <Image
+              src="/photos/carpark-night.jpg"
+              alt="A white SUV with its tail lights on, parked under a concrete canopy at night."
+              width={1800}
+              height={967}
+              sizes="(min-width: 1024px) 260px, 45vw"
+              className="mb-10 h-auto w-full rounded-2xl"
+            />
+          </Reveal>
         </div>
       </section>
     </>
