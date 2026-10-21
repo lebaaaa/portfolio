@@ -164,8 +164,9 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <aside>
-          <dl className="space-y-5 rounded-2xl bg-band p-6 text-band-fg sm:p-7 lg:sticky lg:top-6">
+        {/* Card and button stick together, just below the sticky header. */}
+        <aside className="lg:sticky lg:top-28 lg:self-start">
+          <dl className="space-y-5 rounded-2xl bg-band p-6 text-band-fg sm:p-7">
             {facts.map(([k, v]) => (
               <div key={k}>
                 <dt className="font-mono text-xs font-medium text-gold">{k}</dt>

@@ -115,7 +115,7 @@ export default async function ProjectPage({
             key={section.heading}
             className="grid gap-5 lg:grid-cols-[17rem_1fr] lg:gap-14"
           >
-            <h2 className="font-display text-2xl leading-tight font-bold tracking-tight lg:sticky lg:top-6 lg:self-start">
+            <h2 className="font-display text-2xl leading-tight font-bold tracking-tight lg:sticky lg:top-28 lg:self-start">
               {section.heading}
             </h2>
             <div className="max-w-2xl text-[16.5px]">
