@@ -65,7 +65,7 @@ export const projects: Project[] = [
     slug: "gomi-rubbish-app",
     title: "Gomi, rubbish sorting for foreigners",
     short:
-      "An Android app that tells you which bin an item goes in and when that bin is collected, using only Yamatokoriyama City's official rules.",
+      "An Android app that tells you which bin something goes in and when it gets collected, using Yamatokoriyama City's official rules.",
     group: "nara",
     when: "22 Oct 2026",
     role: "Solo",
@@ -120,78 +120,78 @@ export const projects: Project[] = [
       },
     ],
     showcaseCaption:
-      "Screenshots from the release build on the Android emulator. Category and item names are always in English and Japanese, so they match the words on signs and bags.",
+      "Screenshots from the release build on the Android emulator. Names are always in English and Japanese, so you can match them to the signs and bags.",
     stats: [
-      { value: "455", label: "items from the city's official sorting dictionary, searchable in English, kanji or kana" },
-      { value: "137", label: "automated tests, including every holiday and year-end change to the collection days" },
-      { value: "8 / 17", label: "real recycling-mark photos read correctly by the offline scanner, with 0 false alarms on 10 photos without a mark" },
+      { value: "455", label: "items from the city's sorting dictionary, searchable in English, kanji or kana" },
+      { value: "137", label: "automated tests, including every holiday and New Year change to the collection days" },
+      { value: "8 / 17", label: "real recycling-mark photos the scanner got right, with no false alarms on 10 photos without a mark" },
     ],
     intro:
-      "Japanese rubbish rules are strict, differ from city to city and are published in Japanese. Put out the wrong bag on the wrong day and it gets left behind with a warning sticker. I wanted an app that answers two questions: which category is this, and when is it collected? I set one rule before anything was built: every rule in the app has to come from the city's own pages, and anything that can't be confirmed is marked as unverified, never guessed.",
+      "When I got to Japan, rubbish was the first thing that confused me. Every city has its own rules, they're all in Japanese, and if you put out the wrong bag on the wrong day, it just gets left there with a sticker on it. So I made an app that tells me two things: which category something is, and when that category gets collected. My one rule was that everything in it has to come from the city's own website. If I can't confirm something, the app says so instead of guessing.",
     sections: [
       {
-        heading: "The right city first",
+        heading: "Which city am I even in?",
         blocks: [
           {
             type: "p",
-            text: "NIT Nara College is in Yamatokoriyama City (大和郡山市), not Nara City (奈良市), and the two have different rules. A web search for the rules mostly returned pages for Nara City and for Koriyama City in Fukushima (郡山市), which has a similar name. All of those were thrown away. Only pages under city.yamatokoriyama.lg.jp were used.",
+            text: "My college, NIT Nara College, is actually in Yamatokoriyama City (大和郡山市), not Nara City (奈良市), and the two have different rules. When I searched online, most results were for Nara City, or for Koriyama City in Fukushima (郡山市), which just has a similar name. I didn't use any of those. Everything in the app comes from city.yamatokoriyama.lg.jp.",
           },
           {
             type: "list",
             items: [
-              "Burnable rubbish goes out twice a week. Which two days depends on which side of the Kintetsu Kashihara Line and Route 25 you live; the area around the college is on the Monday and Thursday course.",
-              "The surprise: in Yamatokoriyama, plastic packaging (プラ) goes in burnable, and cans and bottles go in non-burnable. Many other cities do it differently, which is exactly why the data can only come from this city.",
-              "Non-burnable rubbish is collected once a month on a day set per neighbourhood. The city's timetable lists 12 groups, and the college dorm (高専寮) is named in the 1st Wednesday group.",
-              "Bulky and hazardous rubbish days are set by each neighbourhood association (自治会), and the city doesn't publish them. So the app says “ask your 自治会” instead of showing a date.",
+              "Burnable rubbish goes out twice a week. Which two days depends on which side of the Kintetsu Kashihara Line and Route 25 you live. The area around my college is Monday and Thursday.",
+              "Plastic packaging (プラ) counts as burnable here, and cans and bottles count as non-burnable. A lot of cities do it differently, so I really couldn't copy rules from anywhere else.",
+              "Non-burnable rubbish goes out once a month, on a day that depends on your neighbourhood. The city's timetable has 12 groups, and the college dorm (高専寮) is listed by name in the 1st Wednesday group.",
+              "The city doesn't publish the days for bulky and hazardous rubbish, because each neighbourhood association (自治会) decides its own. So instead of making up a date, the app tells you to ask your 自治会.",
             ],
           },
           {
             type: "figure",
             src: "/figures/gomi_sources.png",
             alt: "The app's Official sources screen: collection days, the area map, the FY2026 holiday schedule, the non-burnable timetable PDF and the sorting leaflet, each with its Japanese title, its city URL and the date it was checked.",
-            caption: "Every rule links back to the official page it came from and the date it was checked. The app has a screen listing all of them.",
+            caption: "Every rule in the app links to the city page it came from, with the date I checked it.",
             width: 720,
             height: 780,
           },
         ],
       },
       {
-        heading: "Getting the data out of PDFs",
+        heading: "Getting the rules out of PDFs",
         blocks: [
           {
             type: "list",
             items: [
-              "The usual PDF-to-text tool couldn't read the city's Japanese leaflet at all. It failed on the Japanese font encoding, so I switched to PyMuPDF, which read it fine.",
-              "The non-burnable timetable is a scanned image with no text in it. It was transcribed from the page images, then every date was checked automatically: each one has to fall on its group's “Nth weekday”, or carry the note printed next to it. 0 dates failed.",
-              "The sorting dictionary has 448 rows across 20 pages. A script checked the row count on every page against the PDF.",
-              "A Python script merges the rules, the dictionary, the timetable and Japan's national holiday list into one file per city. Adding another city means adding data, not code.",
+              "The city's leaflet is a Japanese PDF, and the first PDF tool I tried couldn't read the Japanese text at all. PyMuPDF could.",
+              "The non-burnable timetable is a scanned image, so there's no text to copy. The dates had to be copied from the page images by hand, so I had a script check every one. Each date has to land on the right weekday for its group, like “1st Wednesday”, unless the PDF has a note next to it. None of them failed.",
+              "The sorting dictionary is 448 rows over 20 pages. A script counts the rows on each page and compares them with the PDF, so I know nothing got skipped.",
+              "A Python script puts the rules, the dictionary, the timetable and Japan's public holidays into one file per city. To add another city, I only need to add its data.",
             ],
           },
         ],
       },
       {
-        heading: "When two official sources disagree",
+        heading: "When the city disagrees with itself",
         blocks: [
           {
             type: "p",
-            text: "Checking the battery entries turned up a conflict. The sorting dictionary, made in March 2024, says button batteries and lithium-ion batteries aren't collected and you should ask the shop. The city's battery page, updated on 1 October 2026, says they're hazardous rubbish or go in the battery collection boxes.",
+            text: "While checking batteries, I found two official pages that said different things. The sorting dictionary from March 2024 says button batteries and lithium-ion batteries aren't collected, and you should ask the shop. The city's battery page, updated on 1 October 2026, says they're hazardous rubbish or go in the battery collection boxes.",
           },
           {
             type: "p",
-            text: "The newer page wins, but not silently. The app shows a “Newer city guidance” note with the reason and the newer source. Seven items that appear in the newer pages but not in the dictionary, such as power banks and PET bottle caps, were added with their sources.",
+            text: "I went with the newer page, but I didn't want the app to change the answer quietly. It shows a “Newer city guidance” note that explains what changed and links to the newer page. I also added 7 items that only appear on the newer pages, like power banks and PET bottle caps.",
           },
           {
             type: "p",
-            text: "That fix had a bug of its own. On the emulator, the button battery page showed the new “hazardous” box and, further down, the old dictionary note still telling you to ask the shop. The build script now drops the old note whenever a newer source overrides an item.",
+            text: "Then that fix caused a bug. On the button battery page, the new “hazardous” box showed up, but further down, the old note still said to ask the shop. Now when a newer page overrides an item, the old note gets removed.",
           },
         ],
       },
       {
-        heading: "The camera: honest numbers",
+        heading: "The camera doesn't work that well yet",
         blocks: [
           {
             type: "p",
-            text: "Japanese packaging carries printed recycling marks: プラ, PET, 紙, アルミ, スチール. The scanner reads them with Google's on-device Japanese text recognition, so it works offline. If no known mark is found, it says so and points you to Search. It never invents a category.",
+            text: "Packaging in Japan has recycling marks printed on it, like プラ, PET, 紙, アルミ and スチール. The Scan tab reads them with Google's Japanese text recognition, which runs on the phone, so it works offline. If it can't find a mark it knows, it tells you to use Search. It never guesses a category.",
           },
           {
             type: "table",
@@ -201,64 +201,64 @@ export const projects: Project[] = [
               ["Generated marks", "36 / 49"],
               ["Images with no mark (false alarms)", "0 / 10"],
             ],
-            caption: "Run on the emulator with the real recogniser. Real images are from Wikimedia Commons.",
+            caption: "Tested on the emulator with the real text recogniser. The real images are from Wikimedia Commons.",
           },
           {
             type: "list",
             items: [
-              "Most misses weren't misreads. The recogniser returned no text at all, usually when the mark was small or drawn inside the recycling arrows.",
-              "A guide box on the camera preview, plus a second pass on an enlarged crop of the box, raised real images from 7 to 8 of 17 and generated ones from 28 to 36 of 49. Enlarging the whole photo found nothing new, so only the crop stayed.",
-              "Some misreads were fixable: アルミ came back as カルミ, and 紙パック as 紙バック, so パ and バ are treated as the same when matching.",
-              "One fix created a false alarm. ペットフード (pet food) was read as ペットフート and matched PET. The list of words to ignore is now compared without the small voicing marks, which fixed it.",
+              "Most of the misses weren't wrong readings. The recogniser just didn't find any text, usually when the mark was small or inside the recycling arrows.",
+              "I added a box on the camera screen to line the mark up with, and a second try that zooms into that box. That took real images from 7 to 8 out of 17, and generated ones from 28 to 36 out of 49. Zooming into the whole photo didn't help, so I dropped that.",
+              "Some wrong readings were easy to fix. アルミ came back as カルミ, and 紙パック as 紙バック, so now パ and バ count as the same when matching.",
+              "One fix caused a false alarm. ペットフード (pet food) got read as ペットフート and matched PET. Now the words it should ignore are matched without the small dakuten marks, and that fixed it.",
             ],
           },
           {
             type: "p",
-            text: "A recall of about half on real images isn't good enough to rely on, and the page says so. The next test set will be my own photos of packaging I actually throw away.",
+            text: "Getting about half of the real images right isn't good enough yet. Next I want to test it on my own photos of packaging I actually throw away.",
           },
         ],
       },
       {
-        heading: "Reminders, and three bugs found on screen",
+        heading: "Reminders, and bugs I found by looking",
         blocks: [
           {
             type: "figure",
             src: "/figures/gomi_notification.png",
             alt: "An Android notification from Gomi: Tomorrow: Burnable 燃えるごみ. Put it out by 7:30 a.m., followed by the same in Japanese.",
-            caption: "A real reminder firing on the emulator, from the first build, before the app had its own icon.",
+            caption: "A real reminder going off on the emulator. This was the first build, before I made the app icon.",
             width: 1080,
             height: 345,
           },
           {
             type: "list",
             items: [
-              "The evening before each collection, a notification says what goes out tomorrow. The date logic covers the 2nd and 4th Wednesday rules, holidays (PET collection on 23 September 2026 moves to 30 September) and the year-end break, and the week screen explains a skipped day instead of just showing nothing.",
-              "Bug 1: the camera permission popped up as soon as the app opened, on the Week tab. Every tab was being built at start-up, and the scanner thought it was visible. Each tab is now told whether it's on screen.",
-              "Bug 2: at 08:08 the home screen still said “Today: Burnable, out by 7:30 a.m.”, after the deadline had passed. After 7:30 it now moves on to the next collection day.",
-              "Bug 3: the outdated battery note above, found the same way, by looking at each screen on the emulator rather than trusting the tests.",
+              "The night before a collection, you get a notification saying what goes out tomorrow. The app handles the 2nd and 4th Wednesday rules, holidays and the New Year break. For example, PET collection on 23 September 2026 moves to 30 September. If a usual collection day is cancelled, the week screen says why.",
+              "The camera permission popped up as soon as the app opened. Every tab was being loaded at start-up, so the Scan tab thought it was on screen. Now each tab knows whether it's actually showing.",
+              "At 08:08 the home screen still said “Today: Burnable, out by 7:30 a.m.”, which was already too late. Now after 7:30 it moves on to the next collection day.",
+              "And the old battery note from earlier. The tests didn't catch any of these. I only found them by going through every screen on the emulator.",
             ],
           },
         ],
       },
       {
-        heading: "Too many words",
+        heading: "Too much text",
         blocks: [
           {
             type: "p",
-            text: "The first version was correct but cluttered: every screen had paragraphs of official text in two languages, and it was tiring to read. I asked for a redesign around one idea per screen. Each category now has 2 or 3 short steps, each condensed from an official sentence and keeping its source. The full official wording is one tap away, and the Japanese rules sit behind a switch, with a setting to show them everywhere.",
+            text: "The first version had the right rules, but every screen had paragraphs of official text in two languages, and honestly it was annoying to read. So I redesigned it so each screen does one thing. Each category now has 2 or 3 short steps, each one shortened from an official sentence and still linked to its source. The full official wording is one tap away, and the Japanese rules are behind a switch, or you can turn them on everywhere in Settings.",
           },
         ],
       },
       {
-        heading: "Optional: identify any item by photo",
+        heading: "Optional: an AI photo check",
         blocks: [
           {
             type: "p",
-            text: "For items without a mark, the app can send a photo to Claude Haiku, a fast and cheap vision model. The model has to pick a category from this city's list and nothing else. The app labels the answer “AI suggestion, may be wrong”, shows the city's official rule for that category underneath, and warns you if the city dictionary disagrees.",
+            text: "For things without a mark, the app can send a photo to Claude Haiku, a cheap and fast AI model that can read images. It can only pick from this city's categories. The app labels the answer “AI suggestion, may be wrong”, shows the city's actual rule under it, and warns you if the city's dictionary disagrees.",
           },
           {
             type: "p",
-            text: "It asks for consent before any photo leaves the phone, and the button only exists in a build with an API key. It has been tested with mocked responses and once against the real API with an invalid key, which correctly showed the error. It hasn't been run with a real key yet.",
+            text: "It asks before sending any photo, and the button only shows up if the app was built with an API key. I've tested it with fake responses, and once against the real API with a wrong key, to check the error shows up properly. I haven't tried it with a real key yet.",
           },
         ],
       },
@@ -268,9 +268,9 @@ export const projects: Project[] = [
           {
             type: "list",
             items: [
-              "Test the scanner on my own phone photos of real packaging.",
-              "Confirm with the dorm whether it uses the city collection point at all.",
-              "Update the collection timetable when the city publishes the April 2027 schedule. Until then, dates after 31 March 2027 are shown as unverified.",
+              "Test the scanner with photos from my own phone.",
+              "Ask the dorm whether it even uses the city's collection points.",
+              "Update the timetable when the city publishes the April 2027 one. Until then, dates after 31 March 2027 show as unverified.",
             ],
           },
         ],
