@@ -94,6 +94,22 @@ export default function Home() {
 
       <section className={`${container} pt-24 sm:pt-32`}>
         <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+          <TextReveal onView segments={[{ text: "Since arriving in Nara" }]} />
+        </h2>
+        <Reveal delay={0.15}>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">
+            Side projects from October 2026, built in my free time during the
+            internship. One fixes a problem I run into every week; the other
+            tests whether an AI could really trade for me.
+          </p>
+        </Reveal>
+        <div className="mt-10">
+          <WorkBento set="nara" />
+        </div>
+      </section>
+
+      <section className={`${container} pt-24 sm:pt-32`}>
+        <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           <TextReveal onView segments={[{ text: "Earlier projects" }]} />
         </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:gap-5">

@@ -1,5 +1,6 @@
 // All project content lives here. Numbers come from the Daily Logs, the
-// CarRacing README and the TurtleBot3 write-up in C:\AI Testing.
+// CarRacing README and the TurtleBot3 write-up in C:\AI Testing, and from the
+// gomi_app and trading_rl logs there.
 
 export type Block =
   | { type: "p"; text: string }
@@ -38,7 +39,7 @@ export type Project = {
   slug: string;
   title: string;
   short: string;
-  group: "rl" | "earlier";
+  group: "rl" | "nara" | "earlier";
   when?: string;
   role: string;
   stack: string[];
@@ -60,6 +61,491 @@ export type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    slug: "gomi-rubbish-app",
+    title: "Gomi, rubbish sorting for foreigners",
+    short:
+      "An Android app that tells you which bin an item goes in and when that bin is collected, using only Yamatokoriyama City's official rules.",
+    group: "nara",
+    when: "22 Oct 2026",
+    role: "Solo",
+    stack: [
+      "Flutter",
+      "Dart",
+      "Google ML Kit (Japanese text recognition)",
+      "Local notifications",
+      "Python + PyMuPDF (data pipeline)",
+      "Claude API (optional)",
+    ],
+    showcase: [
+      {
+        kind: "image",
+        src: "/phones/gomi-week.png",
+        alt: "Week screen: the next collection is Burnable 燃えるごみ on Monday 26 October, out by 7:30 a.m., with non-burnable on Wednesday 4 November and PET bottles on Wednesday 11 November coming up.",
+        label: "this week",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/gomi-search.png",
+        alt: "Search for battery: dry-cell, button, lithium-ion, rechargeable and coin batteries and power banks are Hazardous rubbish; car batteries are not collected by the city.",
+        label: "search, English or Japanese",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/gomi-item.png",
+        alt: "Button battery ボタン電池: Hazardous rubbish, a Newer city guidance note, three steps (tape both ends, battery box or bulky-rubbish day, never in any other bag) and the source checked 22 Oct.",
+        label: "item, with its source",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/gomi-pet.png",
+        alt: "PET bottles ペットボトル: collected on the 2nd Wednesday, next on 11 November, then 9 December, 13 January, 10 February and 10 March, with three steps: cap off, rinse, label off.",
+        label: "category and dates",
+        width: 720,
+        height: 1520,
+      },
+      {
+        kind: "image",
+        src: "/phones/gomi-scan.png",
+        alt: "Scan screen: the camera preview with a guide box and the instruction to fill the box with the mark, above a Scan mark button.",
+        label: "recycling-mark scanner",
+        width: 720,
+        height: 1520,
+      },
+    ],
+    showcaseCaption:
+      "Screenshots from the release build on the Android emulator. Category and item names are always in English and Japanese, so they match the words on signs and bags.",
+    stats: [
+      { value: "455", label: "items from the city's official sorting dictionary, searchable in English, kanji or kana" },
+      { value: "137", label: "automated tests, including every holiday and year-end change to the collection days" },
+      { value: "8 / 17", label: "real recycling-mark photos read correctly by the offline scanner, with 0 false alarms on 10 photos without a mark" },
+    ],
+    intro:
+      "Japanese rubbish rules are strict, differ from city to city and are published in Japanese. Put out the wrong bag on the wrong day and it gets left behind with a warning sticker. I wanted an app that answers two questions: which category is this, and when is it collected? I set one rule before anything was built: every rule in the app has to come from the city's own pages, and anything that can't be confirmed is marked as unverified, never guessed.",
+    sections: [
+      {
+        heading: "The right city first",
+        blocks: [
+          {
+            type: "p",
+            text: "NIT Nara College is in Yamatokoriyama City (大和郡山市), not Nara City (奈良市), and the two have different rules. A web search for the rules mostly returned pages for Nara City and for Koriyama City in Fukushima (郡山市), which has a similar name. All of those were thrown away. Only pages under city.yamatokoriyama.lg.jp were used.",
+          },
+          {
+            type: "list",
+            items: [
+              "Burnable rubbish goes out twice a week. Which two days depends on which side of the Kintetsu Kashihara Line and Route 25 you live; the area around the college is on the Monday and Thursday course.",
+              "The surprise: in Yamatokoriyama, plastic packaging (プラ) goes in burnable, and cans and bottles go in non-burnable. Many other cities do it differently, which is exactly why the data can only come from this city.",
+              "Non-burnable rubbish is collected once a month on a day set per neighbourhood. The city's timetable lists 12 groups, and the college dorm (高専寮) is named in the 1st Wednesday group.",
+              "Bulky and hazardous rubbish days are set by each neighbourhood association (自治会), and the city doesn't publish them. So the app says “ask your 自治会” instead of showing a date.",
+            ],
+          },
+          {
+            type: "figure",
+            src: "/figures/gomi_sources.png",
+            alt: "The app's Official sources screen: collection days, the area map, the FY2026 holiday schedule, the non-burnable timetable PDF and the sorting leaflet, each with its Japanese title, its city URL and the date it was checked.",
+            caption: "Every rule links back to the official page it came from and the date it was checked. The app has a screen listing all of them.",
+            width: 720,
+            height: 780,
+          },
+        ],
+      },
+      {
+        heading: "Getting the data out of PDFs",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "The usual PDF-to-text tool couldn't read the city's Japanese leaflet at all. It failed on the Japanese font encoding, so I switched to PyMuPDF, which read it fine.",
+              "The non-burnable timetable is a scanned image with no text in it. It was transcribed from the page images, then every date was checked automatically: each one has to fall on its group's “Nth weekday”, or carry the note printed next to it. 0 dates failed.",
+              "The sorting dictionary has 448 rows across 20 pages. A script checked the row count on every page against the PDF.",
+              "A Python script merges the rules, the dictionary, the timetable and Japan's national holiday list into one file per city. Adding another city means adding data, not code.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "When two official sources disagree",
+        blocks: [
+          {
+            type: "p",
+            text: "Checking the battery entries turned up a conflict. The sorting dictionary, made in March 2024, says button batteries and lithium-ion batteries aren't collected and you should ask the shop. The city's battery page, updated on 1 October 2026, says they're hazardous rubbish or go in the battery collection boxes.",
+          },
+          {
+            type: "p",
+            text: "The newer page wins, but not silently. The app shows a “Newer city guidance” note with the reason and the newer source. Seven items that appear in the newer pages but not in the dictionary, such as power banks and PET bottle caps, were added with their sources.",
+          },
+          {
+            type: "p",
+            text: "That fix had a bug of its own. On the emulator, the button battery page showed the new “hazardous” box and, further down, the old dictionary note still telling you to ask the shop. The build script now drops the old note whenever a newer source overrides an item.",
+          },
+        ],
+      },
+      {
+        heading: "The camera: honest numbers",
+        blocks: [
+          {
+            type: "p",
+            text: "Japanese packaging carries printed recycling marks: プラ, PET, 紙, アルミ, スチール. The scanner reads them with Google's on-device Japanese text recognition, so it works offline. If no known mark is found, it says so and points you to Search. It never invents a category.",
+          },
+          {
+            type: "table",
+            head: ["Test images", "Read correctly"],
+            rows: [
+              ["Real photos and drawings of marks", "8 / 17"],
+              ["Generated marks", "36 / 49"],
+              ["Images with no mark (false alarms)", "0 / 10"],
+            ],
+            caption: "Run on the emulator with the real recogniser. Real images are from Wikimedia Commons.",
+          },
+          {
+            type: "list",
+            items: [
+              "Most misses weren't misreads. The recogniser returned no text at all, usually when the mark was small or drawn inside the recycling arrows.",
+              "A guide box on the camera preview, plus a second pass on an enlarged crop of the box, raised real images from 7 to 8 of 17 and generated ones from 28 to 36 of 49. Enlarging the whole photo found nothing new, so only the crop stayed.",
+              "Some misreads were fixable: アルミ came back as カルミ, and 紙パック as 紙バック, so パ and バ are treated as the same when matching.",
+              "One fix created a false alarm. ペットフード (pet food) was read as ペットフート and matched PET. The list of words to ignore is now compared without the small voicing marks, which fixed it.",
+            ],
+          },
+          {
+            type: "p",
+            text: "A recall of about half on real images isn't good enough to rely on, and the page says so. The next test set will be my own photos of packaging I actually throw away.",
+          },
+        ],
+      },
+      {
+        heading: "Reminders, and three bugs found on screen",
+        blocks: [
+          {
+            type: "figure",
+            src: "/figures/gomi_notification.png",
+            alt: "An Android notification from Gomi: Tomorrow: Burnable 燃えるごみ. Put it out by 7:30 a.m., followed by the same in Japanese.",
+            caption: "A real reminder firing on the emulator, from the first build, before the app had its own icon.",
+            width: 1080,
+            height: 345,
+          },
+          {
+            type: "list",
+            items: [
+              "The evening before each collection, a notification says what goes out tomorrow. The date logic covers the 2nd and 4th Wednesday rules, holidays (PET collection on 23 September 2026 moves to 30 September) and the year-end break, and the week screen explains a skipped day instead of just showing nothing.",
+              "Bug 1: the camera permission popped up as soon as the app opened, on the Week tab. Every tab was being built at start-up, and the scanner thought it was visible. Each tab is now told whether it's on screen.",
+              "Bug 2: at 08:08 the home screen still said “Today: Burnable, out by 7:30 a.m.”, after the deadline had passed. After 7:30 it now moves on to the next collection day.",
+              "Bug 3: the outdated battery note above, found the same way, by looking at each screen on the emulator rather than trusting the tests.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Too many words",
+        blocks: [
+          {
+            type: "p",
+            text: "The first version was correct but cluttered: every screen had paragraphs of official text in two languages, and it was tiring to read. I asked for a redesign around one idea per screen. Each category now has 2 or 3 short steps, each condensed from an official sentence and keeping its source. The full official wording is one tap away, and the Japanese rules sit behind a switch, with a setting to show them everywhere.",
+          },
+        ],
+      },
+      {
+        heading: "Optional: identify any item by photo",
+        blocks: [
+          {
+            type: "p",
+            text: "For items without a mark, the app can send a photo to Claude Haiku, a fast and cheap vision model. The model has to pick a category from this city's list and nothing else. The app labels the answer “AI suggestion, may be wrong”, shows the city's official rule for that category underneath, and warns you if the city dictionary disagrees.",
+          },
+          {
+            type: "p",
+            text: "It asks for consent before any photo leaves the phone, and the button only exists in a build with an API key. It has been tested with mocked responses and once against the real API with an invalid key, which correctly showed the error. It hasn't been run with a real key yet.",
+          },
+        ],
+      },
+      {
+        heading: "What's next",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "Test the scanner on my own phone photos of real packaging.",
+              "Confirm with the dorm whether it uses the city collection point at all.",
+              "Update the collection timetable when the city publishes the April 2027 schedule. Until then, dates after 31 March 2027 are shown as unverified.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "rl-trading",
+    title: "Putting RL trading to the test",
+    short:
+      "PPO agents that trade currencies, tested against doing nothing and against simple rules, on simulated and real data. None of them had a real edge after costs.",
+    group: "nara",
+    when: "Oct 2026, ongoing",
+    role: "Solo side project",
+    stack: ["Python", "Stable-Baselines3 (PPO)", "Gymnasium", "NumPy", "scikit-learn", "matplotlib"],
+    stats: [
+      { value: "27 years", label: "of real EUR/USD tested, plus six more currency pairs" },
+      { value: "19", label: "automated checks a result had to pass before I trusted it" },
+      { value: "0", label: "strategies with a reliable edge on real currency data after trading costs" },
+    ],
+    intro:
+      "I wanted an AI that could trade for me. Most RL trading projects online report big profits that don't survive new data, so I did the opposite: I built reinforcement learning agents that trade currencies, then tried hard to prove them wrong. Across a simulated market, 27 years of real EUR/USD, seven currency pairs, support and resistance zones and a popular YouTube strategy, nothing beat simple baselines after trading costs. This page is how I found that out. Backtesting and paper trading only, no real money.",
+    sections: [
+      {
+        heading: "The rules I held myself to",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "Always compare with doing nothing (staying out of the market), and with random entries that use the same stops and targets. A strategy has to beat both to count.",
+              "Test on data the model never saw. Data is split by time, never shuffled, and the test years stay untouched until the end.",
+              "Include trading costs in every result.",
+              "Train 5 seeds per setup and report the spread, not the best one.",
+              "Write down a prediction before each run, then compare.",
+              "Treat a result that looks too good as a bug until proven otherwise.",
+              "Pass 19 automated checks before trusting anything, including look-ahead tests (changing future prices must not change any decision) and the environment's reward matching an independent backtest exactly.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "A market where I know the answer",
+        blocks: [
+          {
+            type: "p",
+            text: "First, a simulated EUR/USD-like price with hidden up and down trends lasting about 50 steps each, where the trend is 12 times smaller than the noise, like real markets. The agent picks short, flat or long each step and earns the next step's price move minus a 1 pip cost. Because the market is simulated, I could also build an “oracle” that knows the hidden trend, which shows the best realistic result.",
+          },
+          {
+            type: "list",
+            items: [
+              "Run 1 memorised its training data. Its training reward reached about +95% a year, while the oracle's ceiling is about +13%. It had seen each training step about 70 times and learned that one path's noise, then lost 15.5% on test data. Fix: a brand-new simulated path every episode.",
+              "Given raw price changes as input, PPO never found the trend, even with 4 times more training (2M steps). It traded on almost every step and lost to costs.",
+              "Giving it three trend averages (over 10, 50 and 100 steps) fixed it. Trades fell from about 1,050 to about 80 per test period. The inputs mattered more than the training time.",
+            ],
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_sweep.png",
+            alt: "Line chart of Sharpe ratio against pattern strength 0, 1, 2, 4 and 8. The oracle rises to about 9.8, PPO to about 7.8, the moving-average rule to about 6.4, buy and hold stays near 1. PPO is below the moving-average rule up to strength 2 and above it from strength 4.",
+            caption: "Making the hidden trend louder. PPO only overtakes a moving-average rule from strength 4, where the trend is a third of the noise.",
+            width: 1350,
+            height: 825,
+          },
+          {
+            type: "p",
+            text: "A fair comparison then changed my conclusion. On 200 fresh test paths, PPO first looked better than the moving-average rule I'd been using. But that rule had been tuned on a single path. Tuned on its own 200 paths, the best moving-average rule scored +0.129, and PPO +0.123: a tie.",
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_fair_test.png",
+            alt: "Dot plot of mean log return over 200 test paths: flat 0, buy and hold +0.02, MA 10/100 +0.09, oracle +0.69, PPO with raw returns −0.05, PPO with trend features +0.12.",
+            caption: "Before the fair re-tune: PPO with trend features (+0.12) ahead of the MA 10/100 rule (+0.09). The re-tuned MA 5/50 rule caught up.",
+            width: 1350,
+            height: 720,
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_robustness.png",
+            alt: "PPO minus the tuned moving-average rule in 8 market settings, with 95% intervals. Every interval crosses zero except double the trend, where PPO is about 0.05 to 0.06 behind.",
+            caption: "In 7 market settings it never trained on, PPO tied the tuned rule, except with twice-as-strong trends, where it fell behind. Training on randomised markets didn't fix that.",
+            width: 1425,
+            height: 900,
+          },
+          {
+            type: "p",
+            text: "To see what PPO had learned, I fitted a small decision tree to its choices. A depth-3 tree copies it almost exactly: stay in your position until both the 10-step and 50-step trends turn clearly against you. One trap here: a tree can agree with the agent on 95% of steps and still never trade, because the agent keeps its position most of the time. An extracted rule has to be judged by playing it, not by how often it agrees.",
+          },
+          {
+            type: "quote",
+            text: "Verdict: PPO learned a sensible trend-following rule from scratch, about as good as a well-tuned moving-average crossover, and no better.",
+          },
+        ],
+      },
+      {
+        heading: "Real EUR/USD and six more pairs",
+        blocks: [
+          {
+            type: "p",
+            text: "Then real daily EUR/USD from 1999 to 2026, split into training (1999-2016), validation (2017-2020) and test (2021-2026), then six more major pairs. The strategies trained only on the simulator had never seen any real data, so I could score them on the whole history.",
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_real_history.png",
+            alt: "Cumulative log return on real EUR/USD from 1999 to 2026 for buy and hold, MA 5/50, momentum 40 and two PPO variants. All end between +0.07 and +0.25; the trend rules rise until about 2011, then go sideways.",
+            caption: "Strategies tuned or trained only on the simulator, run on 27 years of real EUR/USD. Trend following made almost all its gains before 2011, then went nowhere for 15 years.",
+            width: 1650,
+            height: 825,
+          },
+          {
+            type: "list",
+            items: [
+              "One price history can't separate these strategies. Over the 6-year test period, the uncertainty on the difference between two strategies was about ±0.16 log return. Telling apart two strategies whose Sharpe ratios differ by 0.1 would take roughly 400 years of data.",
+              "Seven pairs aren't seven times the evidence. They all trade against the US dollar and move together, and I measured them as worth about 2.6 independent histories.",
+              "PPO trained on real 1999-2016 data overfitted (+8 to 10% a year on training data). Choosing its checkpoint on 2017-2020 picked a “mostly long” model, because the euro happened to rise then, and it lost when the euro fell in 2021-2026.",
+            ],
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_pairs.png",
+            alt: "Bar chart of Sharpe ratios for five strategies on seven currency pairs and an equal-weight portfolio of all seven. Results are mixed in sign on every pair, and the portfolio bars are all close to zero.",
+            caption: "Across seven pairs, trend following was positive on only 2 or 3. EUR/USD had been the lucky pair.",
+            width: 1650,
+            height: 825,
+          },
+        ],
+      },
+      {
+        heading: "Support and resistance",
+        blocks: [
+          {
+            type: "p",
+            text: "I'm a beginner trader. I paper trade on TradingView and mostly follow the trend, and I didn't know how to mark support and resistance zones myself. So before learning to, I tested whether they work at all. I built a zone finder (swing highs and lows grouped into zones, plus unfilled fair value gaps) on 16 years of hourly data.",
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_zones.png",
+            alt: "Hourly EUR/USD candles from 22 to 30 September 2026 with shaded support zones, resistance zones and bullish and bearish fair value gaps, each labelled with the number of swings in it.",
+            caption: "What the zone finder marks on an hourly chart. Each zone uses only prices known at that moment.",
+            width: 1800,
+            height: 900,
+          },
+          {
+            type: "list",
+            items: [
+              "Zones and fair value gaps didn't make price bounce more often than random levels of the same width, on 4-hour or 1-hour charts.",
+              "The first test said random levels “bounced” 75% of the time. The bounce measure was uneven depending on the zone's width, so real zones are now compared against fake zones of the same width, and the measure was checked as unbiased on random walks.",
+              "Rule-based strategies flipped with the market. Breakout rules were the best in 1999-2016 and lost money on every setting in 2017-2026. The settings that looked best on the past did worst afterwards.",
+            ],
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_sr_rules.png",
+            alt: "Sharpe ratios on 2017-2026 for three support and resistance rules, buy and hold and two trend rules, across seven pairs. Every 95% interval crosses zero; the breakout rule is the worst at about −0.63.",
+            caption: "Settings tuned on 1999-2016, tested on 2017-2026 across all seven pairs.",
+            width: 1500,
+            height: 750,
+          },
+          {
+            type: "p",
+            text: "Finally an RL bot that sees the zones. As a control, an identical bot was given fake zones, taken from 4 months earlier. Five seeds each, tested on 2024-2026.",
+          },
+          {
+            type: "figure",
+            src: "/figures/trading_sr_bot.png",
+            alt: "Account value from January 2024 to September 2026 for ten PPO bots, five with real zones and five with fake zones, plus an always-long rule and a trend rule. The real and fake bots are mixed together, ending between about 0.55 and 1.2.",
+            caption: "Real zones (blue) and fake zones (purple) can't be told apart. Both made a little before costs and lost it to the spread over about 1,500 trades.",
+            width: 1650,
+            height: 825,
+          },
+          {
+            type: "p",
+            text: "Training on four pairs instead of one cut trading by a third and reduced losses on those pairs, but didn't help on a pair it had never seen (USD/CAD).",
+          },
+        ],
+      },
+      {
+        heading: "A YouTube “65% win rate” strategy",
+        blocks: [
+          {
+            type: "p",
+            text: "A popular day-trading video (about 690k views) claimed a 50 EMA break-and-pullback strategy won 21 of 32 trades on AUD/JPY 4-hour charts from 2020 to 2024, with a 2:1 target. I wrote its rules as exact code, noted every place I had to interpret them, and added a control: the same trades with random directions. With a 2:1 target, a strategy with no edge wins about 33%.",
+          },
+          {
+            type: "table",
+            head: ["Test", "Trades", "Won", "Per trade, after costs"],
+            rows: [
+              ["The video's claim", "32", "65%", ""],
+              ["My code, same pair, chart and years", "29", "34%", "+0.02R"],
+              ["Random directions on those entries", "29", "38%", "+0.13R"],
+              ["6 pairs, 1h and 4h charts, 2010-2026", "2,702", "35%", "+0.02R"],
+            ],
+            caption: "R is the amount risked on a trade, so +0.02R is about break-even.",
+          },
+          {
+            type: "list",
+            items: [
+              "My version finds the setups at about the same rate as the video, but wins half as often.",
+              "The rules are vague in places, so I tried 12 readings of them. The best won 46% on the video's data, then 34% on the other pairs and years. Picking the best of many variants makes results that vanish on new data, which is likely how many impressive backtests are made.",
+              "Practising the strategy on a replay chart, I spotted a sell signal with no EMA cross anywhere on screen. Tracing it showed the break had happened 8 hours earlier: the video never says how soon the pullback has to come, and my code waited forever. I chose a limit of 12 candles before seeing any results. With it, the video's own data gave 28 trades and 29% won, at −0.15R a trade, and all 6 pairs gave 2,508 trades and 34% won. The verdict didn't change.",
+            ],
+          },
+          {
+            type: "quote",
+            text: "Verdict: the claimed result did not replicate.",
+          },
+        ],
+      },
+      {
+        heading: "Bugs and traps I caught",
+        blocks: [
+          {
+            type: "table",
+            head: ["What looked wrong", "Cause", "Fix"],
+            rows: [
+              ["Training reward of +95% a year, 7 times the best possible", "The agent memorised its single training path", "A new simulated path every episode"],
+              ["The raw-return agent traded on almost every step", "It couldn't average 50 noisy returns by itself", "Trend-average inputs"],
+              ["A “Saved” message, but no file", "An edit by line number had replaced the save call", "Fixed, and output files are now checked"],
+              ["A 109-pip-wide “resistance zone”", "Zone merging chained a whole sideways range into one zone", "Zones capped at 1 ATR wide; the earlier test was thrown out"],
+              ["Random levels “bounced” 75% of the time", "The bounce measure was uneven by zone width", "Compared against width-matched fake zones"],
+              ["Real-zone bots beat fake ones at their best checkpoints", "Luck in picking checkpoints", "Final models showed no difference"],
+              ["Data with 16% one-day spikes", "Bad prices in Yahoo's FX data", "Switched to Dukascopy, checked against FRED (0.979 correlation)"],
+              ["A 46% win rate for one reading of the rules", "Picked from 12 variants on the same data", "Tested on other pairs: 34%"],
+            ],
+          },
+        ],
+      },
+      {
+        heading: "My predictions against the results",
+        blocks: [
+          {
+            type: "table",
+            head: ["Experiment", "My prediction", "Result"],
+            rows: [
+              ["Run 1, one fixed training path", "Below the moving-average rule", "Right: −15.5% against +14%"],
+              ["Run 2, fresh paths", "Stops flipping every step, still below MA", "Half right: still about 1,050 trades, below MA"],
+              ["Trend-strength sweep", "PPO beats MA only beyond strength 8", "Earlier than expected: from strength 4"],
+              ["Seven currency pairs", "PPO ties MA; trend following positive on most pairs", "Half right: PPO ties MA, but positive on only 2 or 3 of 7"],
+              ["Breakout against bounce", "Breakout wins", "True for 1999-2016, false for 2017-2026"],
+              ["Zones against fake zones", "Real zones bounce more", "Not supported"],
+              ["RL bot, real against fake zones", "Real zones win", "No reliable difference"],
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Limits, and what's running now",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "My support and resistance is one mechanical definition. A human marks zones with judgement.",
+              "Costs of half a pip each way are optimistic for many retail brokers.",
+              "Since 23 October 2026 a live paper-trading test has been running: five frozen support and resistance bots and a trend rule on live hourly EUR/USD, using the same mechanics as the backtest, logged to a ledger that's only ever added to.",
+              "Next idea: use RL to decide position size instead of direction. Volatility is far more predictable than price direction, so a sizing agent has a real, stable pattern to learn.",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "What I learned",
+        blocks: [
+          {
+            type: "list",
+            items: [
+              "A training result that beats the best possible strategy is a bug, not a breakthrough.",
+              "One price history can't prove a trading strategy. The comparison that matters is paired: the same data and the same costs, against doing nothing and against random entries.",
+              "Inputs mattered more than training time: 4 times more training didn't help raw returns, while three trend averages did.",
+              "Trying many variants and keeping the best one creates results that disappear on new data.",
+              "Most of the real work was building the baselines, controls and checks.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     slug: "turtlebot3-lidar-robot",
     title: "Crash or carry on: training a LiDAR robot",
@@ -1183,4 +1669,5 @@ export function getProject(slug: string) {
 }
 
 export const rlProjects = projects.filter((p) => p.group === "rl");
+export const naraProjects = projects.filter((p) => p.group === "nara");
 export const earlierProjects = projects.filter((p) => p.group === "earlier");

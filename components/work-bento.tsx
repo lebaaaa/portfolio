@@ -39,7 +39,7 @@ type Tile = {
 
 // Five projects, five cells. The TurtleBot3 tile is the tall one because it's
 // the newest and the only one that ran on a real robot.
-const tiles: Tile[] = [
+const rlTiles: Tile[] = [
   {
     slug: "turtlebot3-lidar-robot",
     span: "lg:col-span-7 lg:row-span-2",
@@ -125,6 +125,42 @@ const tiles: Tile[] = [
   },
 ];
 
+// Side projects since arriving in Nara, side by side.
+const naraTiles: Tile[] = [
+  {
+    slug: "gomi-rubbish-app",
+    span: "lg:col-span-6",
+    tone: "gold",
+    layout: "stack",
+    aspect: "aspect-[16/10]",
+    media: {
+      kind: "image",
+      src: "/media/gomi-tile.jpg",
+      w: 1600,
+      h: 1000,
+      bg: "#f7f1e3",
+      alt: "Three screens of the Gomi app: this week's collections, a search for battery, and the button battery page.",
+    },
+  },
+  {
+    slug: "rl-trading",
+    span: "lg:col-span-6",
+    tone: "panel",
+    layout: "stack",
+    aspect: "aspect-[16/10]",
+    media: {
+      kind: "image",
+      src: "/figures/trading_sweep.png",
+      w: 1350,
+      h: 825,
+      bg: "#fcfcfa",
+      alt: "Chart of how strong a hidden trend has to be before PPO beats a moving-average rule.",
+    },
+  },
+];
+
+const sets = { rl: rlTiles, nara: naraTiles };
+
 const tone: Record<Tone, { box: string; meta: string }> = {
   navy: { box: "bg-band text-band-fg", meta: "text-band-muted" },
   coral: { box: "bg-accent text-on-color", meta: "text-on-color" },
@@ -163,7 +199,11 @@ function Media({ tile }: { tile: Tile }) {
             alt={m.alt}
             width={m.w}
             height={m.h}
-            sizes="(min-width: 1024px) 260px, 50vw"
+            sizes={
+              tile.layout === "row"
+                ? "(min-width: 1024px) 260px, 50vw"
+                : "(min-width: 1024px) 540px, 100vw"
+            }
             className="h-full w-full object-cover"
           />
         )}
@@ -172,10 +212,10 @@ function Media({ tile }: { tile: Tile }) {
   );
 }
 
-export function WorkBento() {
+export function WorkBento({ set = "rl" }: { set?: keyof typeof sets }) {
   return (
     <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
-      {tiles.map((tile, i) => {
+      {sets[set].map((tile, i) => {
         const p = getProject(tile.slug)!;
         const t = tone[tile.tone];
         return (
