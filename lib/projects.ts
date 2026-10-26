@@ -1,6 +1,6 @@
 // All project content lives here. Numbers come from the Daily Logs, the
-// CarRacing README and the TurtleBot3 write-up in C:\AI Testing, and from the
-// gomi_app and trading_rl logs there.
+// CarRacing README, the TurtleBot3 write-up and the trading_rl logs in
+// C:\AI Testing, and from the gomi_app logs in C:\Personal\extra projects.
 
 export type Block =
   | { type: "p"; text: string }
